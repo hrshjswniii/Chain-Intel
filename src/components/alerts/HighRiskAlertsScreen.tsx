@@ -1,7 +1,7 @@
 import React from 'react';
 import { HighRiskAlert, InvestigationCase } from '../../types';
 import { DEMO_INVESTIGATION_CASES } from '../../demo/demoCases';
-import { ShieldAlert, AlertTriangle, ArrowRight, Lock, CheckCircle2 } from 'lucide-react';
+import { ShieldAlert, ArrowRight, Lock } from 'lucide-react';
 
 interface HighRiskAlertsScreenProps {
   onSelectCase: (caseItem: InvestigationCase) => void;

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { KNOWN_ADDRESS_MAP, KNOWN_VASP_DATABASE } from '../../engine/vasp/vaspDatabase';
-import { Users, CheckCircle2, XCircle, Flag, ShieldCheck } from 'lucide-react';
+import { Users } from 'lucide-react';
 
 export const VASPCommonsScreen: React.FC = () => {
   const [addressEntries, setAddressEntries] = useState([

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { KNOWN_VASP_DATABASE } from '../../engine/vasp/vaspDatabase';
-import { VASPMatch } from '../../types';
-import { Search, ShieldCheck, Globe, Mail, Building2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Search, ShieldCheck, Globe, Mail, Building2 } from 'lucide-react';
 
 export const VASPIntelligenceScreen: React.FC = () => {
   const [search, setSearch] = useState('');

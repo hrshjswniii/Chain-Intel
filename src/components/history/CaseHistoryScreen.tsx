@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { InvestigationCase } from '../../types';
 import { DEMO_INVESTIGATION_CASES } from '../../demo/demoCases';
-import { History, Search, Filter, Download, ArrowRight } from 'lucide-react';
+import { History, Search } from 'lucide-react';
 
 interface CaseHistoryScreenProps {
   onSelectCase: (caseItem: InvestigationCase) => void;

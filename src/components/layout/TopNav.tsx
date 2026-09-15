@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ShieldAlert, CheckCircle2, User, Database, Terminal, Cpu } from 'lucide-react';
+import { Search, Database } from 'lucide-react';
 import { detectChainAndType } from '../../engine/adapters/chainAdapter';
 import { InvestigationCase } from '../../types';
 

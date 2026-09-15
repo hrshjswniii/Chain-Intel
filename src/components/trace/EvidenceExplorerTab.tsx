@@ -1,6 +1,6 @@
 import React from 'react';
 import { EvidenceItem } from '../../types';
-import { ShieldCheck, Database, Calendar, Link, AlertTriangle } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
 interface EvidenceExplorerTabProps {
   evidenceList: EvidenceItem[];

@@ -1,6 +1,6 @@
 import React from 'react';
 import { GraphNode } from '../../types';
-import { X, ExternalLink, ShieldAlert, CheckCircle2, Copy } from 'lucide-react';
+import { X, ExternalLink, Copy } from 'lucide-react';
 
 interface RightNodeDrawerProps {
   node: GraphNode | null;

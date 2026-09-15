@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { InvestigationCase } from '../../types';
 import { generateFreezeRequestDraft } from '../../engine/legal/legalNoticeEngine';
-import { X, Copy, Printer, Check, ShieldAlert, Lock } from 'lucide-react';
+import { X, Copy, Printer, Check, Lock } from 'lucide-react';
 
 interface FreezeRequestModalProps {
   currentCase: InvestigationCase;

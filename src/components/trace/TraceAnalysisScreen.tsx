@@ -7,7 +7,7 @@ import { InvestigatorStoryCard } from './InvestigatorStoryCard';
 import { RightNodeDrawer } from './RightNodeDrawer';
 import { EvidenceExplorerTab } from './EvidenceExplorerTab';
 import { CaseTimelineTab } from './CaseTimelineTab';
-import { GitCommit, ShieldCheck, FileCheck, Lock, Building2 } from 'lucide-react';
+import { FileCheck, Lock } from 'lucide-react';
 
 interface TraceAnalysisScreenProps {
   activeCase: InvestigationCase;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ForensicTimelineEvent } from '../../types';
-import { Clock, ArrowRight, ArrowDownLeft, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 interface CaseTimelineTabProps {
   timeline: ForensicTimelineEvent[];

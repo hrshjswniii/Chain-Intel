@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { InvestigationCase } from '../../types';
 import { generateLegalNoticeDraft } from '../../engine/legal/legalNoticeEngine';
-import { X, Copy, Printer, Check, ShieldAlert } from 'lucide-react';
+import { X, Copy, Printer, Check } from 'lucide-react';
 
 interface LegalNoticeModalProps {
   currentCase: InvestigationCase;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BatchCaseRecord } from '../../types';
-import { Upload, FileSpreadsheet, Play, Download, CheckCircle2, AlertTriangle, Layers } from 'lucide-react';
+import { Upload, Download, Layers } from 'lucide-react';
 
 export const BatchInvestigationScreen: React.FC = () => {
   const [batchRecords, setBatchRecords] = useState<BatchCaseRecord[]>([

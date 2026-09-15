@@ -1,7 +1,7 @@
 import React from 'react';
 import { InvestigationCase } from '../../types';
 import { DEMO_INVESTIGATION_CASES } from '../../demo/demoCases';
-import { PlusCircle, Search, GitCommit, Building2, ShieldAlert, FileText, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { PlusCircle, ArrowRight } from 'lucide-react';
 
 interface DashboardScreenProps {
   onSelectCase: (caseItem: InvestigationCase) => void;

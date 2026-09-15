@@ -1,6 +1,6 @@
 import React from 'react';
 import { getAuditLedger } from '../../engine/integrity/integrityManager';
-import { Activity, ShieldCheck, Database, Cpu, CheckCircle2, Lock } from 'lucide-react';
+import { Activity, CheckCircle2, Lock } from 'lucide-react';
 
 export const SystemStatusScreen: React.FC = () => {
   const auditLogs = getAuditLedger();
