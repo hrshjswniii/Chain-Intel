@@ -11,6 +11,11 @@ export interface ChainAdapter {
 export function detectChainAndType(input: string): { chain: BlockchainType; inputType: 'WALLET' | 'TX_HASH'; isValid: boolean } {
   const clean = input.trim();
   
+  // Tron TRC-20 Address (starts with T, Base58 ~34 chars)
+  if (/^T[a-zA-HJ-NP-Z0-9]{33}$/.test(clean)) {
+    return { chain: 'Tron', inputType: 'WALLET', isValid: true };
+  }
+
   // Ethereum / EVM Wallet Address: 0x + 40 hex chars
   if (/^0x[a-fA-F0-9]{40}$/.test(clean)) {
     return { chain: 'Ethereum', inputType: 'WALLET', isValid: true };
@@ -32,6 +37,9 @@ export function detectChainAndType(input: string): { chain: BlockchainType; inpu
   }
 
   // Default fallback for heuristic matching
+  if (clean.startsWith('T')) {
+    return { chain: 'Tron', inputType: 'WALLET', isValid: true };
+  }
   if (clean.startsWith('0x')) {
     return { chain: 'Ethereum', inputType: 'WALLET', isValid: true };
   }
@@ -84,6 +92,95 @@ export class BitcoinAdapter implements ChainAdapter {
       dataSource: 'DEMO' as DataSourceTag,
       maxHops,
       vaspDestination: 'Unattributed',
+    };
+  }
+}
+
+export class TronAdapter implements ChainAdapter {
+  chain: BlockchainType = 'Tron';
+
+  validateAddress(address: string): boolean {
+    return /^T[a-zA-HJ-NP-Z0-9]{33}$/.test(address.trim());
+  }
+
+  validateTxHash(txHash: string): boolean {
+    return /^[a-fA-F0-9]{64}$/.test(txHash.trim());
+  }
+
+  async fetchTrace(input: string, maxHops: number): Promise<Partial<InvestigationCase>> {
+    const match = matchAddress(input);
+    return {
+      chain: 'Tron',
+      targetInput: input,
+      dataSource: 'DEMO' as DataSourceTag,
+      maxHops,
+      vaspDestination: match.isMatch ? match.vaspDetails?.name || 'Binance (Tron USDT Cluster)' : 'Binance (Tron Cluster)',
+    };
+  }
+}
+
+export class BNBAdapter implements ChainAdapter {
+  chain: BlockchainType = 'BNB';
+
+  validateAddress(address: string): boolean {
+    return /^0x[a-fA-F0-9]{40}$/.test(address.trim());
+  }
+
+  validateTxHash(txHash: string): boolean {
+    return /^0x[a-fA-F0-9]{64}$/.test(txHash.trim());
+  }
+
+  async fetchTrace(input: string, maxHops: number): Promise<Partial<InvestigationCase>> {
+    return {
+      chain: 'BNB',
+      targetInput: input,
+      dataSource: 'DEMO' as DataSourceTag,
+      maxHops,
+      vaspDestination: 'Binance Smart Chain Exchange Wallet',
+    };
+  }
+}
+
+export class SolanaAdapter implements ChainAdapter {
+  chain: BlockchainType = 'Solana';
+
+  validateAddress(address: string): boolean {
+    return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address.trim());
+  }
+
+  validateTxHash(txHash: string): boolean {
+    return /^[1-9A-HJ-NP-Za-km-z]{64,88}$/.test(txHash.trim());
+  }
+
+  async fetchTrace(input: string, maxHops: number): Promise<Partial<InvestigationCase>> {
+    return {
+      chain: 'Solana',
+      targetInput: input,
+      dataSource: 'DEMO' as DataSourceTag,
+      maxHops,
+      vaspDestination: 'Kraken Solana Deposit',
+    };
+  }
+}
+
+export class PolygonAdapter implements ChainAdapter {
+  chain: BlockchainType = 'Polygon';
+
+  validateAddress(address: string): boolean {
+    return /^0x[a-fA-F0-9]{40}$/.test(address.trim());
+  }
+
+  validateTxHash(txHash: string): boolean {
+    return /^0x[a-fA-F0-9]{64}$/.test(txHash.trim());
+  }
+
+  async fetchTrace(input: string, maxHops: number): Promise<Partial<InvestigationCase>> {
+    return {
+      chain: 'Polygon',
+      targetInput: input,
+      dataSource: 'DEMO' as DataSourceTag,
+      maxHops,
+      vaspDestination: 'FixedFloat Polygon Swap',
     };
   }
 }
