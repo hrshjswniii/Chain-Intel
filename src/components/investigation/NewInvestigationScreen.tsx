@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { BlockchainType, InvestigationCase } from '../../types';
 import { detectChainAndType } from '../../engine/adapters/chainAdapter';
 import { DEMO_INVESTIGATION_CASES } from '../../demo/demoCases';
-import { PlusCircle, Search, GitCommit, Sliders, AlertCircle, HelpCircle, ArrowRight } from 'lucide-react';
+import { ProgressiveTraceModal } from '../trace/ProgressiveTraceModal';
+import { PlusCircle, Sliders, ArrowRight, GitCommit } from 'lucide-react';
 
 interface NewInvestigationScreenProps {
   onStartTrace: (newCase: Partial<InvestigationCase>) => void;
@@ -24,6 +25,9 @@ export const NewInvestigationScreen: React.FC<NewInvestigationScreenProps> = ({
   const [notes, setNotes] = useState('Victim reported unauthorized outflow from personal web3 account.');
 
   const [detectedInfo, setDetectedInfo] = useState(() => detectChainAndType(targetInput));
+  const [isTracingProgressive, setIsTracingProgressive] = useState(false);
+  const [pendingCaseParams, setPendingCaseParams] = useState<Partial<InvestigationCase> | null>(null);
+  const [pendingPreset, setPendingPreset] = useState<InvestigationCase | null>(null);
 
   const handleInputChange = (val: string) => {
     setTargetInput(val);
@@ -38,7 +42,8 @@ export const NewInvestigationScreen: React.FC<NewInvestigationScreenProps> = ({
     e.preventDefault();
     if (!targetInput.trim()) return;
 
-    onStartTrace({
+    setPendingPreset(null);
+    setPendingCaseParams({
       id: `TB-CASE-${Date.now().toString().slice(-4)}`,
       caseReference: caseRef,
       investigator,
@@ -53,10 +58,33 @@ export const NewInvestigationScreen: React.FC<NewInvestigationScreenProps> = ({
       minTransferValue,
       notes,
     });
+    setIsTracingProgressive(true);
+  };
+
+  const handleSelectPreset = (preset: InvestigationCase) => {
+    setPendingCaseParams(null);
+    setPendingPreset(preset);
+    setIsTracingProgressive(true);
+  };
+
+  const handleTraceComplete = () => {
+    setIsTracingProgressive(false);
+    if (pendingPreset) {
+      onSelectPresetCase(pendingPreset);
+    } else if (pendingCaseParams) {
+      onStartTrace(pendingCaseParams);
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      <ProgressiveTraceModal
+        isOpen={isTracingProgressive}
+        targetInput={pendingPreset ? pendingPreset.targetInput : pendingCaseParams?.targetInput || targetInput}
+        chain={pendingPreset ? pendingPreset.chain : pendingCaseParams?.chain || chain}
+        onComplete={handleTraceComplete}
+      />
+
       {/* Header Banner */}
       <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
         <div className="flex items-center space-x-2">
@@ -82,7 +110,7 @@ export const NewInvestigationScreen: React.FC<NewInvestigationScreenProps> = ({
         <select
           onChange={(e) => {
             const found = DEMO_INVESTIGATION_CASES.find((c) => c.id === e.target.value);
-            if (found) onSelectPresetCase(found);
+            if (found) handleSelectPreset(found);
           }}
           className="px-3 py-1.5 bg-white border border-blue-300 rounded text-xs font-semibold text-blue-900 focus:outline-none cursor-pointer shadow-2xs"
         >

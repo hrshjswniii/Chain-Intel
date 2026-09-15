@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AttributionScore, AttributionTier } from '../../types';
-import { ShieldCheck, HelpCircle, ChevronDown, ChevronUp, CheckCircle2, ArrowRight, Building2 } from 'lucide-react';
+import { HelpCircle, ChevronDown, ChevronUp, Building2 } from 'lucide-react';
 
 interface ConfidenceLadderCardProps {
   attribution: AttributionScore;
@@ -81,25 +81,39 @@ export const ConfidenceLadderCard: React.FC<ConfidenceLadderCardProps> = ({ attr
       {/* Candidate Direct-Deposit VASP Rankings */}
       {attribution.candidateVASPs && attribution.candidateVASPs.length > 0 && (
         <div className="bg-slate-50 border border-slate-200 rounded-md p-3">
-          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
-            Identified VASP Candidate Ranking
-          </span>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
+              Identified Direct-Deposit VASP Candidates
+            </span>
+            <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-mono">
+              Explicit Ranking
+            </span>
+          </div>
           <div className="space-y-1.5 text-xs">
             {attribution.candidateVASPs.map((cand, idx) => (
-              <div key={idx} className="flex items-center justify-between bg-white p-2 rounded border border-slate-200">
-                <div className="flex items-center space-x-2">
-                  <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-900 font-bold text-[10px] flex items-center justify-center font-mono">
+              <div key={idx} className="flex items-center justify-between bg-white p-2.5 rounded border border-slate-200 shadow-2xs">
+                <div className="flex items-center space-x-2.5">
+                  <span className="w-5 h-5 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center font-mono shrink-0">
                     #{idx + 1}
                   </span>
                   <div>
-                    <span className="font-bold text-slate-900">{cand.vaspName}</span>
-                    <span className="text-[10px] text-slate-500 block">{cand.clusterRelationship}</span>
+                    <div className="flex items-center space-x-1.5">
+                      <span className="font-bold text-slate-900">{cand.vaspName}</span>
+                      {cand.isNearestDirectDeposit && (
+                        <span className="px-1.5 py-0.2 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded text-[9px] font-bold">
+                          Nearest Direct Deposit
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">{cand.clusterRelationship}</span>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <span className="text-[11px] font-mono text-slate-600">{cand.hopDistance} Hops</span>
-                  <span className="px-2 py-0.5 bg-blue-50 text-blue-800 font-bold rounded font-mono">
+                <div className="flex items-center space-x-2.5 shrink-0">
+                  <span className="text-[11px] font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded font-semibold">
+                    {cand.hopDistance} Hops
+                  </span>
+                  <span className="px-2 py-0.5 bg-blue-50 text-blue-800 font-bold rounded font-mono border border-blue-200">
                     {cand.confidenceScore}%
                   </span>
                 </div>
