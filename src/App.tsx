@@ -28,6 +28,18 @@ export function App() {
   const [isLegalNoticeOpen, setIsLegalNoticeOpen] = useState(false);
   const [isFreezeModalOpen, setIsFreezeModalOpen] = useState(false);
   const [dataSourceMode, setDataSourceMode] = useState<'DEMO' | 'LIVE'>('DEMO');
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('chain_intel_theme');
+    return saved ? saved === 'dark' : false;
+  });
+
+  const handleToggleDarkMode = () => {
+    setIsDarkMode((prev) => {
+      const next = !prev;
+      localStorage.setItem('chain_intel_theme', next ? 'dark' : 'light');
+      return next;
+    });
+  };
 
   const handleSelectCase = (caseItem: InvestigationCase) => {
     setActiveCase(caseItem);
@@ -265,7 +277,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900">
+    <div className={isDarkMode ? 'dark min-h-screen bg-slate-950 flex flex-col font-sans text-slate-100' : 'min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900'}>
       <div className="flex flex-1 overflow-hidden">
         {/* Persistent Professional Sidebar */}
         <Sidebar activeTab={activeTab} onSelectTab={(tab) => setActiveTab(tab)} alertCount={4} />
@@ -280,6 +292,8 @@ export function App() {
             onToggleDataSourceMode={() =>
               setDataSourceMode((prev) => (prev === 'DEMO' ? 'LIVE' : 'DEMO'))
             }
+            isDarkMode={isDarkMode}
+            onToggleDarkMode={handleToggleDarkMode}
           />
 
           {/* Active Screen View Router */}

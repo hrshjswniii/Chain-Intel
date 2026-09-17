@@ -24,6 +24,106 @@
   }
 }
 
+/* High-Contrast Dark Forensic Workstation Theme Overrides */
+.dark body {
+  background-color: #0b0f19 !important;
+  color: #f1f5f9 !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: #0b0f19 !important;
+}
+
+.dark .bg-white {
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+}
+
+.dark .bg-slate-50,
+.dark .bg-slate-50\/50,
+.dark .bg-slate-50\/60 {
+  background-color: #1f2937 !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .bg-blue-50,
+.dark .bg-blue-50\/50,
+.dark .bg-blue-50\/60 {
+  background-color: #1e293b !important;
+  color: #93c5fd !important;
+}
+
+.dark .bg-emerald-50 {
+  background-color: #064e3b !important;
+  color: #a7f3d0 !important;
+}
+
+.dark .bg-rose-50,
+.dark .bg-rose-50\/50 {
+  background-color: #4c0519 !important;
+  color: #fecdd3 !important;
+}
+
+.dark .bg-amber-50 {
+  background-color: #451a03 !important;
+  color: #fde68a !important;
+}
+
+.dark .border-slate-200,
+.dark .border-slate-100,
+.dark .border-slate-300 {
+  border-color: #374151 !important;
+}
+
+.dark .border-blue-200,
+.dark .border-blue-300 {
+  border-color: #1e40af !important;
+}
+
+.dark .border-emerald-200,
+.dark .border-emerald-300 {
+  border-color: #065f46 !important;
+}
+
+.dark .border-rose-200 {
+  border-color: #881337 !important;
+}
+
+.dark .border-amber-200,
+.dark .border-amber-300 {
+  border-color: #78350f !important;
+}
+
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-blue-950 {
+  color: #f8fafc !important;
+}
+
+.dark .text-slate-700,
+.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-blue-900,
+.dark .text-blue-800,
+.dark .text-blue-700 {
+  color: #60a5fa !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+  border-color: #374151 !important;
+}
+
 /* Custom scrollbars for clean forensic UI */
 ::-webkit-scrollbar {
   width: 6px;
