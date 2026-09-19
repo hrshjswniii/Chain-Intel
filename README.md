@@ -1,6 +1,9 @@
 # 🛡️ CHAIN-INTEL
 
 <p align="center">
+  <a href="https://chain-intel-jade.vercel.app" target="_blank">
+    <img src="https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Demo">
+  </a>
   <img src="https://img.shields.io/badge/SIH%202026-Problem%20Statement%2026182-blue?style=for-the-badge&logo=shield" alt="SIH 2026">
   <img src="https://img.shields.io/badge/Ministry%20of%20Home%20Affairs-I4C%20%2F%20CIS-navy?style=for-the-badge&logo=government" alt="MHA I4C">
   <img src="https://img.shields.io/badge/React-18%2B-61DAFB?style=for-the-badge&logo=react" alt="React">
@@ -9,6 +12,8 @@
   <img src="https://img.shields.io/badge/Cytoscape.js-Graph_Engine-orange?style=for-the-badge" alt="Cytoscape.js">
   <img src="https://img.shields.io/badge/SHA--256-Chain__of__Custody-emerald?style=for-the-badge" alt="SHA-256">
 </p>
+
+> 🌐 **Live Web Application**: [https://chain-intel-jade.vercel.app](https://chain-intel-jade.vercel.app)
 
 ### **Automated Blockchain Intelligence & Wallet-to-VASP Attribution Platform**
 > *"Every crypto trail ends somewhere. We find that end — automatically."*
