@@ -12,6 +12,7 @@ import {
   Activity,
   Shield,
   ShieldAlert,
+  Settings,
   ChevronRight
 } from 'lucide-react';
 
@@ -26,7 +27,8 @@ export type NavTab =
   | 'sahyog_integration'
   | 'vasp_commons'
   | 'case_history'
-  | 'system_status';
+  | 'system_status'
+  | 'settings';
 
 interface SidebarProps {
   activeTab: NavTab;
@@ -47,7 +49,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab, alertC
     { id: 'vasp_commons', label: 'VASP Commons', icon: Users },
     { id: 'case_history', label: 'Case History', icon: History },
     { id: 'system_status', label: 'System Status & Logs', icon: Activity },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
+
 
   return (
     <aside className="w-64 bg-slate-900 text-slate-300 border-r border-slate-800 flex flex-col justify-between shrink-0 select-none z-30">

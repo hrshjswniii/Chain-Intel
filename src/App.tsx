@@ -12,8 +12,11 @@ import { SahyogIntegrationScreen } from './components/sahyog/SahyogIntegrationSc
 import { VASPCommonsScreen } from './components/commons/VASPCommonsScreen';
 import { CaseHistoryScreen } from './components/history/CaseHistoryScreen';
 import { SystemStatusScreen } from './components/status/SystemStatusScreen';
+import { SettingsScreen } from './components/settings/SettingsScreen';
 import { LegalNoticeModal } from './components/sahyog/LegalNoticeModal';
 import { FreezeRequestModal } from './components/sahyog/FreezeRequestModal';
+import { loadSettings, saveSettings, resetSettings } from './engine/settings/settingsStore';
+import { ChainSightSettings } from './types/settings';
 
 import { DEMO_INVESTIGATION_CASES } from './demo/demoCases';
 import { InvestigationCase } from './types';
@@ -28,18 +31,28 @@ export function App() {
   const [isLegalNoticeOpen, setIsLegalNoticeOpen] = useState(false);
   const [isFreezeModalOpen, setIsFreezeModalOpen] = useState(false);
   const [dataSourceMode, setDataSourceMode] = useState<'DEMO' | 'LIVE'>('DEMO');
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    const saved = localStorage.getItem('chain_intel_theme');
-    return saved ? saved === 'dark' : false;
-  });
 
-  const handleToggleDarkMode = () => {
-    setIsDarkMode((prev) => {
-      const next = !prev;
-      localStorage.setItem('chain_intel_theme', next ? 'dark' : 'light');
-      return next;
-    });
+  const [settings, setSettings] = useState<ChainSightSettings>(() => loadSettings());
+
+  const handleUpdateSettings = (newSettings: ChainSightSettings) => {
+    setSettings(newSettings);
+    saveSettings(newSettings);
   };
+
+  const handleResetSettings = () => {
+    const defaults = resetSettings();
+    setSettings(defaults);
+  };
+
+  const isDarkMode = (() => {
+    if (settings.appearance.theme === 'dark') return true;
+    if (settings.appearance.theme === 'light') return false;
+    if (settings.appearance.theme === 'system') {
+      return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  })();
+
 
   const handleSelectCase = (caseItem: InvestigationCase) => {
     setActiveCase(caseItem);
@@ -292,8 +305,6 @@ export function App() {
             onToggleDataSourceMode={() =>
               setDataSourceMode((prev) => (prev === 'DEMO' ? 'LIVE' : 'DEMO'))
             }
-            isDarkMode={isDarkMode}
-            onToggleDarkMode={handleToggleDarkMode}
           />
 
           {/* Active Screen View Router */}
@@ -353,6 +364,14 @@ export function App() {
             )}
 
             {activeTab === 'system_status' && <SystemStatusScreen />}
+
+            {activeTab === 'settings' && (
+              <SettingsScreen
+                settings={settings}
+                onUpdateSettings={handleUpdateSettings}
+                onResetSettings={handleResetSettings}
+              />
+            )}
           </main>
         </div>
       </div>

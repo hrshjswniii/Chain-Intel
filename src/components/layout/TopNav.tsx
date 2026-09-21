@@ -8,8 +8,6 @@ interface TopNavProps {
   activeCase: InvestigationCase;
   dataSourceMode: 'DEMO' | 'LIVE';
   onToggleDataSourceMode: () => void;
-  isDarkMode: boolean;
-  onToggleDarkMode: () => void;
 }
 
 export const TopNav: React.FC<TopNavProps> = ({
@@ -17,8 +15,6 @@ export const TopNav: React.FC<TopNavProps> = ({
   activeCase,
   dataSourceMode,
   onToggleDataSourceMode,
-  isDarkMode,
-  onToggleDarkMode,
 }) => {
   const [searchInput, setSearchInput] = useState('');
   const [detectedChain, setDetectedChain] = useState<{ chain: string; isValid: boolean } | null>(null);
@@ -64,24 +60,7 @@ export const TopNav: React.FC<TopNavProps> = ({
 
       {/* Header Right Status & Profile Controls */}
       <div className="flex items-center space-x-4">
-        {/* Dark Mode Toggle Button */}
-        <button
-          onClick={onToggleDarkMode}
-          className="px-2.5 py-1 rounded border border-slate-300 text-[11px] font-semibold flex items-center space-x-1.5 transition bg-slate-100 hover:bg-slate-200 text-slate-800"
-          title={isDarkMode ? "Switch to Light Workstation Mode" : "Switch to Dark Forensic Mode"}
-        >
-          {isDarkMode ? (
-            <>
-              <Sun className="w-3.5 h-3.5 text-amber-500" />
-              <span>LIGHT MODE</span>
-            </>
-          ) : (
-            <>
-              <Moon className="w-3.5 h-3.5 text-slate-700" />
-              <span>DARK MODE</span>
-            </>
-          )}
-        </button>
+        {/* Data Source Mode Toggle Tag */}
 
         {/* Data Source Mode Toggle Tag */}
         <button
