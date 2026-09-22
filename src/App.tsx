@@ -25,6 +25,8 @@ import { calculateAttributionScore } from './engine/scoring/scoringEngine';
 import { generateInvestigatorNarrative } from './engine/narrative/narrativeEngine';
 import { detectChainAndType } from './engine/adapters/chainAdapter';
 
+import { generateDynamicGraphAndHops } from './engine/scoring/graphGenerator';
+
 export function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
   const [activeCase, setActiveCase] = useState<InvestigationCase>(DEMO_INVESTIGATION_CASES[0]);
@@ -53,7 +55,6 @@ export function App() {
     return false;
   })();
 
-
   const handleSelectCase = (caseItem: InvestigationCase) => {
     setActiveCase(caseItem);
     setActiveTab('trace_analysis');
@@ -72,220 +73,38 @@ export function App() {
       return;
     }
 
-    const match = matchAddress(query);
-    const detection = detectChainAndType(query);
-
-    const attribution = calculateAttributionScore({
-      hasVASPMatch: match.isMatch,
-      vaspDetails: match.vaspDetails,
-      matchType: match.matchType,
-      hopDistance: match.isMatch ? 3 : 4,
-      typologies: [],
+    const targetAddr = query.trim();
+    const detection = detectChainAndType(targetAddr);
+    const dynamicCase = generateDynamicGraphAndHops({
+      targetInput: targetAddr,
+      chain: detection.chain,
+      maxHops: settings.investigation.defaultTraceDepth || 4,
+      dataSource: dataSourceMode,
     });
 
-    const targetAddr = query.trim();
-    const isVasp = match.isMatch;
-    const vaspName = match.vaspDetails?.name || 'Unattributed';
-
-    const newCaseData: InvestigationCase = {
-      id: `TB-SEARCH-${Date.now().toString().slice(-4)}`,
-      caseReference: `CS-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-      investigator: 'Inspector R. Sharma (ID: LE-9842)',
-      incidentType: 'Ad-hoc Wallet Trace Investigation',
-      targetInput: targetAddr,
-      inputType: detection.inputType,
-      chain: detection.chain,
-      status: 'ACTIVE',
-      priority: 'HIGH',
-      riskLevel: match.isMatch ? 'HIGH' : 'MEDIUM',
-      vaspDestination: vaspName,
-      nearestDirectDepositVASP: vaspName,
-      confidenceTier: attribution.tier,
-      confidenceScore: attribution.percentage,
-      dataSource: dataSourceMode,
-      createdDate: new Date().toLocaleDateString('en-IN'),
-      updatedDate: new Date().toLocaleDateString('en-IN'),
-      maxHops: 4,
-      minTransferValue: 0.1,
-      notes: 'Initiated via top search workstation bar.',
-      nodes: [
-        {
-          id: 'node-search-target',
-          label: targetAddr,
-          type: 'UNHOSTED_WALLET',
-          chain: detection.chain,
-          txCount: 24,
-          totalVolume: 12.5,
-          riskLevel: 'HIGH',
-          role: 'Suspect Target Wallet',
-          isTarget: true,
-          lastActive: 'Just Now',
-        },
-        {
-          id: 'node-search-hop1',
-          label: 'Intermediary 1 (0x8F2...41B9)',
-          type: 'WALLET',
-          chain: detection.chain,
-          txCount: 4,
-          totalVolume: 12.2,
-          riskLevel: 'MEDIUM',
-          role: 'Pass-through Wallet',
-          lastActive: '10 mins ago',
-        },
-        {
-          id: 'node-search-vasp',
-          label: isVasp ? `${vaspName} Deposit` : 'Unlabelled Destination',
-          type: isVasp ? 'EXCHANGE_DEPOSIT_WALLET' : 'WALLET',
-          chain: detection.chain,
-          txCount: 14200,
-          totalVolume: 54000.0,
-          riskLevel: 'LOW',
-          role: isVasp ? 'Nearest Direct-Deposit Accepting VASP Wallet' : 'Unattributed Wallet',
-          isNearestDirectDeposit: isVasp,
-          isDestinationVASP: isVasp,
-          vaspName: isVasp ? vaspName : undefined,
-          lastActive: 'Just Now',
-        },
-      ],
-      edges: [
-        {
-          id: 'edge-s1',
-          source: 'node-search-target',
-          target: 'node-search-hop1',
-          amount: 12.5,
-          asset: detection.chain === 'Bitcoin' ? 'BTC' : 'ETH',
-          txHash: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
-          timestamp: 'Today',
-          isSuspicious: true,
-        },
-        {
-          id: 'edge-s2',
-          source: 'node-search-hop1',
-          target: 'node-search-vasp',
-          amount: 12.1,
-          asset: detection.chain === 'Bitcoin' ? 'BTC' : 'ETH',
-          txHash: '0x2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c',
-          timestamp: 'Today',
-          isSuspicious: false,
-        },
-      ],
-      hops: [
-        {
-          hopIndex: 1,
-          fromAddress: targetAddr,
-          toAddress: '0x8F24890A11c47981D90412B009141b29E37841B9',
-          txHash: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
-          amount: 12.5,
-          asset: detection.chain === 'Bitcoin' ? 'BTC' : 'ETH',
-          usdValue: 31250,
-          timestamp: 'Today 14:00',
-          typology: 'Pass-through Transfer',
-          isVASP: false,
-        },
-        {
-          hopIndex: 2,
-          fromAddress: '0x8F24890A11c47981D90412B009141b29E37841B9',
-          toAddress: targetAddr,
-          txHash: '0x2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c',
-          amount: 12.1,
-          asset: detection.chain === 'Bitcoin' ? 'BTC' : 'ETH',
-          usdValue: 30250,
-          timestamp: 'Today 14:30',
-          typology: isVasp ? 'VASP Deposit Sweep' : 'Unlabelled Transfer',
-          isVASP: isVasp,
-          isDirectDeposit: isVasp,
-          vaspName: isVasp ? vaspName : undefined,
-        },
-      ],
-      typologies: [],
-      attribution,
-      evidenceList: [
-        {
-          id: 'ev-s1',
-          title: isVasp ? `Verified Nearest Direct-Deposit VASP (${vaspName})` : 'Unattributed Endpoint',
-          type: 'DIRECT_DEPOSIT_MATCH',
-          source: 'TraceBack VASP Intelligence',
-          address: targetAddr,
-          lastVerified: '2026-08-15',
-          strength: isVasp ? 'STRONG' : 'WEAK',
-          description: match.explanation,
-        },
-      ],
-      timeline: [],
-      narrative: generateInvestigatorNarrative({
-        caseReference: `CS-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-        targetInput: targetAddr,
-        chain: detection.chain,
-        vaspDestination: vaspName,
-        nearestDirectDepositVASP: vaspName,
-        confidenceScore: attribution.percentage,
-        confidenceTier: attribution.tier,
-      }),
-      sha256Hash: '7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b2c3d4e5f6a7b8c9d0e1f2a',
-      hashTimestamp: new Date().toISOString(),
-    };
-
-    setActiveCase(newCaseData);
+    setActiveCase(dynamicCase);
     setActiveTab('trace_analysis');
   };
 
   const handleStartTraceFromForm = async (newCaseParams: Partial<InvestigationCase>) => {
     const targetAddr = newCaseParams.targetInput || '0x71C7656EC7ab88b098defb751b7401b5f6d8976f';
-    const match = matchAddress(targetAddr);
     const detection = detectChainAndType(targetAddr);
+    const requestedHops = newCaseParams.maxHops || 4;
 
-    const attribution = calculateAttributionScore({
-      hasVASPMatch: match.isMatch,
-      vaspDetails: match.vaspDetails,
-      matchType: match.matchType,
-      hopDistance: newCaseParams.maxHops || 3,
-      typologies: [],
+    const dynamicCase = generateDynamicGraphAndHops({
+      targetInput: targetAddr,
+      chain: newCaseParams.chain || detection.chain,
+      maxHops: requestedHops,
+      caseReference: newCaseParams.caseReference,
+      investigator: newCaseParams.investigator,
+      incidentType: newCaseParams.incidentType,
+      priority: newCaseParams.priority,
+      minTransferValue: newCaseParams.minTransferValue,
+      notes: newCaseParams.notes,
+      dataSource: dataSourceMode,
     });
 
-    const vaspName = match.vaspDetails?.name || 'CoinDCX India';
-
-    const fullCase: InvestigationCase = {
-      id: newCaseParams.id || `TB-${Date.now()}`,
-      caseReference: newCaseParams.caseReference || 'CS-2026-9912',
-      investigator: newCaseParams.investigator || 'Inspector R. Sharma (ID: LE-9842)',
-      incidentType: newCaseParams.incidentType || 'Cryptocurrency Fraud',
-      targetInput: targetAddr,
-      inputType: detection.inputType,
-      chain: newCaseParams.chain || detection.chain,
-      status: 'ACTIVE',
-      priority: newCaseParams.priority || 'HIGH',
-      riskLevel: 'HIGH',
-      vaspDestination: vaspName,
-      nearestDirectDepositVASP: vaspName,
-      confidenceTier: attribution.tier,
-      confidenceScore: attribution.percentage,
-      dataSource: dataSourceMode,
-      createdDate: new Date().toLocaleDateString('en-IN'),
-      updatedDate: new Date().toLocaleDateString('en-IN'),
-      maxHops: newCaseParams.maxHops || 4,
-      minTransferValue: newCaseParams.minTransferValue || 0.1,
-      notes: newCaseParams.notes || '',
-      nodes: DEMO_INVESTIGATION_CASES[0].nodes,
-      edges: DEMO_INVESTIGATION_CASES[0].edges,
-      hops: DEMO_INVESTIGATION_CASES[0].hops,
-      typologies: DEMO_INVESTIGATION_CASES[0].typologies,
-      attribution,
-      evidenceList: DEMO_INVESTIGATION_CASES[0].evidenceList,
-      timeline: DEMO_INVESTIGATION_CASES[0].timeline,
-      narrative: generateInvestigatorNarrative({
-        caseReference: newCaseParams.caseReference,
-        targetInput: targetAddr,
-        chain: newCaseParams.chain || detection.chain,
-        vaspDestination: vaspName,
-        nearestDirectDepositVASP: vaspName,
-        confidenceScore: attribution.percentage,
-        confidenceTier: attribution.tier,
-      }),
-      sha256Hash: '7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b2c3d4e5f6a7b8c9d0e1f2a',
-      hashTimestamp: new Date().toISOString(),
-    };
-
-    setActiveCase(fullCase);
+    setActiveCase(dynamicCase);
     setActiveTab('trace_analysis');
   };
 
