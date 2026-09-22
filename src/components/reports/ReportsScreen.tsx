@@ -120,7 +120,7 @@ export const ReportsScreen: React.FC<ReportsScreenProps> = ({ currentCase, onOpe
         <div className="border-b-2 border-slate-900 pb-4 mb-6 flex items-start justify-between">
           <div>
             <div className="text-[10px] font-extrabold text-blue-900 uppercase tracking-widest mb-1">
-              Ministry of Home Affairs — I4C / CIS Division
+              Cyber Crime Investigation & Forensic Division
             </div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight font-mono">CHAIN-INTEL Forensic Lead Report</h2>
             <p className="text-xs text-slate-600 font-medium mt-0.5">

@@ -827,7 +827,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   "Investigation evidence can be used to prepare authorized requests for the relevant VASP or service. External actions require investigator confirmation."
                 </p>
                 <div className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
-                  Environment: Demonstration / Sandbox • MHA I4C Prototype Protocol v2.5
+                  Environment: Demonstration / Sandbox • Protocol v2.5
                 </div>
               </div>
             </div>
@@ -865,7 +865,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                 </div>
 
                 <span className="px-2.5 py-1 bg-blue-900/80 text-blue-200 border border-blue-700 text-xs font-mono font-bold rounded">
-                  SIH 2026 PROTOTYPE
+                  ENTERPRISE PROTOTYPE
                 </span>
               </div>
 
@@ -883,13 +883,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                   <span className="text-sm font-bold text-emerald-400 mt-0.5 block">6 Blockchains</span>
                 </div>
                 <div className="bg-slate-800/80 p-3 rounded border border-slate-700">
-                  <span className="text-[10px] text-slate-400 block uppercase">Problem Statement</span>
-                  <span className="text-sm font-bold text-amber-400 mt-0.5 block">PS 26182</span>
+                  <span className="text-[10px] text-slate-400 block uppercase">Attribution Engine</span>
+                  <span className="text-sm font-bold text-amber-400 mt-0.5 block">5 Tiers</span>
                 </div>
               </div>
 
               <div className="pt-2 text-[11px] text-slate-400 flex flex-wrap items-center justify-between border-t border-slate-800/80">
-                <span>Developed for: Ministry of Home Affairs (MHA) — I4C / CIS Division</span>
+                <span>Developed for: Law Enforcement & Cybercrime Investigation Agencies</span>
                 <span>SHA-256 Custody Engine Active</span>
               </div>
             </div>
@@ -946,7 +946,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {activeModal === 'docs' && (
                 <>
                   <p>
-                    <strong>ChainSight Platform Overview:</strong> ChainSight is built specifically under SIH 2026 Problem Statement 26182 for law enforcement cryptocurrency investigation workflows.
+                    <strong>ChainSight Platform Overview:</strong> ChainSight is an enterprise blockchain intelligence platform engineered for law enforcement cryptocurrency investigation workflows.
                   </p>
                   <p>
                     <strong>Key Workstation Engines:</strong>
@@ -966,7 +966,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                     <strong>Evidence Integrity & Privacy Compliance:</strong> All investigation traces, wallet notes, and generated statutory reports adhere strictly to evidence custody standards.
                   </p>
                   <p>
-                    Deterministic SHA-256 timestamped hashes guarantee evidence immutability for judicial submission under Indian Evidence Act Sec 65B guidelines.
+                    Deterministic SHA-256 timestamped hashes guarantee evidence immutability for judicial submission under evidence law guidelines.
                   </p>
                 </>
               )}
@@ -974,10 +974,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
               {activeModal === 'about' && (
                 <>
                   <p>
-                    <strong>Problem Statement 26182 Alignment:</strong> Developed for the Ministry of Home Affairs (I4C / CIS Division) to automate unhosted wallet tracing to destination exchanges.
+                    <strong>Core Objective & Architecture:</strong> Developed for law enforcement agencies to automate unhosted wallet tracing to destination exchanges.
                   </p>
                   <p>
-                    <strong>Version:</strong> v1.0.0 — SIH 2026 Prototype Demonstration Workstation.
+                    <strong>Version:</strong> v1.0.0 — Prototype Demonstration Workstation.
                   </p>
                 </>
               )}

@@ -91,7 +91,7 @@ export const TopNav: React.FC<TopNavProps> = ({
           </div>
           <div className="hidden lg:block text-left">
             <span className="block font-bold text-slate-900 leading-none">Inspector R. Sharma</span>
-            <span className="text-[10px] text-slate-400 leading-none block mt-0.5">I4C Cyber Cell (LE-9842)</span>
+            <span className="text-[10px] text-slate-400 leading-none block mt-0.5">Cyber Crime Cell (LE-9842)</span>
           </div>
         </div>
       </div>

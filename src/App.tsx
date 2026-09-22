@@ -89,7 +89,7 @@ export function App() {
 
     const newCaseData: InvestigationCase = {
       id: `TB-SEARCH-${Date.now().toString().slice(-4)}`,
-      caseReference: `I4C-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      caseReference: `CS-2026-${Math.floor(1000 + Math.random() * 9000)}`,
       investigator: 'Inspector R. Sharma (ID: LE-9842)',
       incidentType: 'Ad-hoc Wallet Trace Investigation',
       targetInput: targetAddr,
@@ -213,7 +213,7 @@ export function App() {
       ],
       timeline: [],
       narrative: generateInvestigatorNarrative({
-        caseReference: `I4C-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        caseReference: `CS-2026-${Math.floor(1000 + Math.random() * 9000)}`,
         targetInput: targetAddr,
         chain: detection.chain,
         vaspDestination: vaspName,
@@ -246,7 +246,7 @@ export function App() {
 
     const fullCase: InvestigationCase = {
       id: newCaseParams.id || `TB-${Date.now()}`,
-      caseReference: newCaseParams.caseReference || 'I4C-2026-9912',
+      caseReference: newCaseParams.caseReference || 'CS-2026-9912',
       investigator: newCaseParams.investigator || 'Inspector R. Sharma (ID: LE-9842)',
       incidentType: newCaseParams.incidentType || 'Cryptocurrency Fraud',
       targetInput: targetAddr,

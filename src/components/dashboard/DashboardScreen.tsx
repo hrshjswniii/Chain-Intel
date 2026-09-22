@@ -18,7 +18,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
       <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">
-            Ministry of Home Affairs — I4C Workstation
+            Enterprise Blockchain Forensic Workstation
           </span>
           <h1 className="text-xl font-bold text-slate-900">Cryptocurrency Investigation Dashboard</h1>
           <p className="text-xs text-slate-500 mt-1">
@@ -68,12 +68,12 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
         </div>
       </div>
 
-      {/* SIH Presentation Prepared Demo Case Selectors */}
+      {/* Presentation Prepared Demo Case Selectors */}
       <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
           <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-            <h3 className="text-sm font-bold text-slate-900">Pre-configured Demo Scenarios (SIH Evaluation Cases)</h3>
+            <h3 className="text-sm font-bold text-slate-900">Pre-configured Demo Scenarios (Investigation Cases)</h3>
           </div>
           <span className="text-xs text-slate-400 font-medium">Instant One-Click Presentation Traces</span>
         </div>

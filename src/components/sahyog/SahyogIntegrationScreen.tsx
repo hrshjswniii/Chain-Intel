@@ -23,7 +23,7 @@ export const SahyogIntegrationScreen: React.FC<SahyogIntegrationScreenProps> = (
       setIsSimulating(false);
       setSimulationResponse(JSON.stringify({
         status: 'SUCCESS',
-        sahyogTraceId: `SAHYOG-I4C-${Math.floor(10000 + Math.random() * 90000)}`,
+        sahyogTraceId: `SAHYOG-LE-${Math.floor(10000 + Math.random() * 90000)}`,
         syncTimestamp: new Date().toISOString(),
         destinationVASP: sahyogPayload.nearestDirectDepositVASP,
         confidenceTier: sahyogPayload.confidenceTier,

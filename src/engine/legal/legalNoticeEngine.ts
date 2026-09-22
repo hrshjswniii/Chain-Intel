@@ -19,7 +19,7 @@ Legal & Regulatory Response Division
 DATE: ${dateStr}
 REFERENCE CASE NO: ${caseRef}
 INVESTIGATING OFFICER: ${investigator}
-AGENCY: Cyber Crime Investigation Division / Ministry of Home Affairs (I4C)
+AGENCY: Cyber Crime Investigation Division
 
 SUBJECT: Urgent Request for KYC Details, Transaction Logs, and Account Logs under Ongoing Investigation
 
@@ -42,7 +42,7 @@ SUBJECT: Urgent Request for KYC Details, Transaction Logs, and Account Logs unde
 
 ISSUED BY:
 ${investigator}
-Cyber Crime Division / I4C Workstation ID: LE-WORKSTATION-09
+Cyber Crime Division Workstation ID: LE-WORKSTATION-09
 Contact Email: compliance-requests@cybercrime.gov.in`;
 }
 
@@ -65,7 +65,7 @@ Legal Response & Risk Division
 DATE: ${dateStr}
 REFERENCE CASE NO: ${caseRef}
 INVESTIGATING OFFICER: ${investigator}
-AGENCY: Cyber Crime Investigation Division / Ministry of Home Affairs (I4C)
+AGENCY: Cyber Crime Investigation Division
 
 SUBJECT: URGENT ORDER TO FREEZE SUSPECT ACCOUNT & PREVENT DIVERSION OF PROCEEDS OF CRIME
 
@@ -90,5 +90,5 @@ SUBJECT: URGENT ORDER TO FREEZE SUSPECT ACCOUNT & PREVENT DIVERSION OF PROCEEDS 
 
 ISSUED BY:
 ${investigator}
-Cyber Crime Division / I4C Workstation ID: LE-WORKSTATION-09`;
+Cyber Crime Division Workstation ID: LE-WORKSTATION-09`;
 }

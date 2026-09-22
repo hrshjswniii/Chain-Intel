@@ -64,7 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab, alertC
             </span>
             <div>
               <span className="font-extrabold text-base text-white tracking-tight block leading-none font-mono">CHAIN-INTEL</span>
-              <span className="text-[10px] text-slate-400 font-mono block leading-none mt-1">SIH 2026 • MHA / I4C</span>
+              <span className="text-[10px] text-slate-400 font-mono block leading-none mt-1">FORENSIC WORKSTATION</span>
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { InvestigationCase, SahyogPayload } from '../../types';
 export function createSahyogPayload(caseData: Partial<InvestigationCase>): SahyogPayload {
   return {
     caseReference: caseData.caseReference || 'TB-2026-0941',
-    agency: 'Indian Cyber Crime Coordination Centre (I4C)',
+    agency: 'Cyber Crime Investigation Centre',
     investigatorId: caseData.investigator || 'LE-9842',
     targetWallet: caseData.targetInput || '0x71C7656EC7ab88b098defb751b7401b5f6d8976f',
     blockchain: caseData.chain || 'Ethereum',
@@ -22,7 +22,7 @@ export const MOCK_SAHYOG_ENDPOINTS = [
     path: '/api/v1/sahyog/investigations',
     description: 'Submit a new cybercrime case for automated blockchain trace & attribution.',
     sampleRequest: `{
-  "caseReference": "I4C-2026-8891",
+  "caseReference": "CS-2026-8891",
   "agency": "Special Cyber Cell - MH",
   "targetWallet": "0x71C7656EC7ab88b098defb751b7401b5f6d8976f",
   "chain": "Ethereum",
@@ -32,7 +32,7 @@ export const MOCK_SAHYOG_ENDPOINTS = [
   "status": "SUCCESS",
   "traceId": "TRC-9921",
   "estimatedTimeMs": 1200,
-  "sahyogSyncToken": "SYNC-I4C-99120"
+  "sahyogSyncToken": "SYNC-CS-99120"
 }`
   },
   {
@@ -55,7 +55,7 @@ export const MOCK_SAHYOG_ENDPOINTS = [
     path: '/api/v1/sahyog/disclosure-notice',
     description: 'Auto-generate and push Section 91 Cr.P.C. disclosure notice payload directly to law enforcement portal.',
     sampleRequest: `{
-  "caseReference": "I4C-2026-8891",
+  "caseReference": "CS-2026-8891",
   "vaspName": "CoinDCX India",
   "reportHash": "7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b2c3d4e5f6a7b8c9d0e1f2a"
 }`,

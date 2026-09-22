@@ -14,7 +14,7 @@ export const NewInvestigationScreen: React.FC<NewInvestigationScreenProps> = ({
   onStartTrace,
   onSelectPresetCase,
 }) => {
-  const [caseRef, setCaseRef] = useState(`I4C-2026-${Math.floor(1000 + Math.random() * 9000)}`);
+  const [caseRef, setCaseRef] = useState(`CS-2026-${Math.floor(1000 + Math.random() * 9000)}`);
   const [investigator, setInvestigator] = useState('Inspector R. Sharma (ID: LE-9842)');
   const [incidentType, setIncidentType] = useState('Investment Fraud / Phishing');
   const [targetInput, setTargetInput] = useState('0x71C7656EC7ab88b098defb751b7401b5f6d8976f');
@@ -103,7 +103,7 @@ export const NewInvestigationScreen: React.FC<NewInvestigationScreenProps> = ({
       {/* Quick Demo Preset Selector */}
       <div className="bg-blue-50/60 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
         <div>
-          <span className="text-xs font-bold text-blue-950 block">Quick Launch SIH Demo Scenario</span>
+          <span className="text-xs font-bold text-blue-950 block">Quick Launch Demo Scenario</span>
           <span className="text-[11px] text-blue-700">Pre-loaded case parameters for instant live judge presentation</span>
         </div>
 
