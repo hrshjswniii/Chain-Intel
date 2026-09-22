@@ -117,13 +117,13 @@ export const HopPlaybackPlayer: React.FC<HopPlaybackPlayerProps> = ({
       </div>
 
       {/* Visual Hop Chain Horizontal Sequence */}
-      <div className="overflow-x-auto py-2">
-        <div className="flex items-center space-x-2 min-w-max">
+      <div className="overflow-x-auto py-3 bg-slate-50/70 border border-slate-200 rounded-md px-3">
+        <div className="flex items-center space-x-3 min-w-max">
           {/* Target Wallet Start Node */}
-          <div className="flex flex-col items-center">
-            <div className="px-3 py-2 bg-blue-50 border border-blue-300 rounded-md text-center min-w-[120px]">
-              <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider block">Suspect Source</span>
-              <span className="text-xs font-mono font-semibold text-slate-800">
+          <div className="flex flex-col items-center shrink-0">
+            <div className="px-3.5 py-2.5 bg-blue-100 border border-blue-300 rounded-md text-center min-w-[140px] shadow-2xs">
+              <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wider block">Suspect Source</span>
+              <span className="text-xs font-mono font-bold text-slate-900 block mt-0.5" title={targetAddress}>
                 {targetAddress.slice(0, 6)}...{targetAddress.slice(-4)}
               </span>
             </div>
@@ -136,30 +136,30 @@ export const HopPlaybackPlayer: React.FC<HopPlaybackPlayerProps> = ({
 
             return (
               <React.Fragment key={hop.hopIndex}>
-                <div className="flex flex-col items-center px-1">
-                  <ArrowRight className={`w-4 h-4 transition ${isActive ? 'text-blue-600 font-bold' : isPassed ? 'text-slate-400' : 'text-slate-200'}`} />
-                  <span className="text-[10px] font-mono text-slate-400 mt-0.5">{hop.amount} {hop.asset}</span>
+                <div className="flex flex-col items-center px-1 shrink-0">
+                  <ArrowRight className={`w-4 h-4 transition ${isActive ? 'text-blue-600 font-bold scale-110' : isPassed ? 'text-blue-500' : 'text-slate-400'}`} />
+                  <span className="text-[10px] font-mono font-bold text-slate-600 mt-0.5">{hop.amount} {hop.asset}</span>
                 </div>
 
                 <div
                   onClick={() => onHopChange(idx)}
-                  className={`cursor-pointer px-3 py-2 rounded-md border text-center transition min-w-[130px] ${
+                  className={`cursor-pointer px-3.5 py-2.5 rounded-md border text-center transition min-w-[150px] shrink-0 ${
                     isActive
-                      ? 'bg-blue-600 border-blue-700 text-white shadow-md scale-105'
+                      ? 'bg-blue-600 border-blue-700 text-white shadow-md ring-2 ring-blue-300 scale-102'
                       : isPassed
-                      ? 'bg-slate-50 border-slate-300 text-slate-800 hover:border-slate-400'
-                      : 'bg-white border-slate-200 text-slate-400 opacity-60'
+                      ? 'bg-white border-blue-200 text-slate-900 hover:border-blue-400 shadow-2xs'
+                      : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 opacity-80'
                   }`}
                 >
-                  <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-0.5">
-                    <span>Hop #{hop.hopIndex}</span>
+                  <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider mb-1 space-x-2">
+                    <span className={isActive ? 'text-white' : 'text-slate-700'}>Hop #{hop.hopIndex}</span>
                     {hop.isVASP && (
-                      <span className={`px-1 rounded ${isActive ? 'bg-blue-800 text-white' : 'bg-blue-100 text-blue-700'}`}>
+                      <span className={`px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-widest ${isActive ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}`}>
                         VASP
                       </span>
                     )}
                   </div>
-                  <div className="text-xs font-mono font-semibold truncate max-w-[120px]">
+                  <div className="text-xs font-mono font-bold truncate max-w-[140px]" title={hop.isVASP ? hop.vaspName : hop.toAddress}>
                     {hop.isVASP ? hop.vaspName : `${hop.toAddress.slice(0, 6)}...${hop.toAddress.slice(-4)}`}
                   </div>
                 </div>
