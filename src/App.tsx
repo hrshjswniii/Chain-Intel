@@ -13,6 +13,8 @@ import { VASPCommonsScreen } from './components/commons/VASPCommonsScreen';
 import { CaseHistoryScreen } from './components/history/CaseHistoryScreen';
 import { SystemStatusScreen } from './components/status/SystemStatusScreen';
 import { SettingsScreen } from './components/settings/SettingsScreen';
+import { LandingPage } from './components/landing/LandingPage';
+import { NotFoundScreen } from './components/common/NotFoundScreen';
 import { LegalNoticeModal } from './components/sahyog/LegalNoticeModal';
 import { FreezeRequestModal } from './components/sahyog/FreezeRequestModal';
 import { loadSettings, saveSettings, resetSettings } from './engine/settings/settingsStore';
@@ -28,8 +30,16 @@ import { detectChainAndType } from './engine/adapters/chainAdapter';
 import { generateDynamicGraphAndHops } from './engine/scoring/graphGenerator';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
+  const [activeTab, setActiveTab] = useState<NavTab>(() => {
+    // Check hash or path if user directly navigated to dashboard/workstation
+    if (typeof window !== 'undefined' && (window.location.hash === '#workstation' || window.location.pathname.includes('/workstation') || window.location.pathname.includes('/dashboard'))) {
+      return 'dashboard';
+    }
+    return 'landing';
+  });
+
   const [activeCase, setActiveCase] = useState<InvestigationCase>(DEMO_INVESTIGATION_CASES[0]);
+  const [lastSearchQuery, setLastSearchQuery] = useState<string>('');
   const [isLegalNoticeOpen, setIsLegalNoticeOpen] = useState(false);
   const [isFreezeModalOpen, setIsFreezeModalOpen] = useState(false);
   const [dataSourceMode, setDataSourceMode] = useState<'DEMO' | 'LIVE'>('DEMO');
@@ -61,6 +71,13 @@ export function App() {
   };
 
   const handleSearchInput = (query: string) => {
+    setLastSearchQuery(query);
+
+    if (query.trim().toLowerCase() === '404' || query.trim().toLowerCase() === 'notfound') {
+      setActiveTab('not_found');
+      return;
+    }
+
     const foundDemo = DEMO_INVESTIGATION_CASES.find(
       (c) =>
         c.caseReference.toLowerCase() === query.toLowerCase() ||
@@ -75,6 +92,12 @@ export function App() {
 
     const targetAddr = query.trim();
     const detection = detectChainAndType(targetAddr);
+
+    if (!detection.isValid && !targetAddr.startsWith('0x') && !targetAddr.startsWith('bc1') && !targetAddr.startsWith('T') && targetAddr.length < 5) {
+      setActiveTab('not_found');
+      return;
+    }
+
     const dynamicCase = generateDynamicGraphAndHops({
       targetInput: targetAddr,
       chain: detection.chain,
@@ -108,6 +131,24 @@ export function App() {
     setActiveTab('trace_analysis');
   };
 
+  // If viewing Landing Page, render full public landing view
+  if (activeTab === 'landing') {
+    return (
+      <LandingPage
+        onLaunchPlatform={() => setActiveTab('dashboard')}
+        onSelectPresetCase={(caseId) => {
+          const found = DEMO_INVESTIGATION_CASES.find((c) => c.caseReference === caseId);
+          if (found) {
+            setActiveCase(found);
+            setActiveTab('trace_analysis');
+          } else {
+            setActiveTab('dashboard');
+          }
+        }}
+      />
+    );
+  }
+
   return (
     <div className={isDarkMode ? 'dark min-h-screen bg-slate-950 flex flex-col font-sans text-slate-100' : 'min-h-screen bg-slate-100 flex flex-col font-sans text-slate-900'}>
       <div className="flex flex-1 overflow-hidden">
@@ -128,6 +169,14 @@ export function App() {
 
           {/* Active Screen View Router */}
           <main className="p-6 flex-1">
+            {activeTab === 'not_found' && (
+              <NotFoundScreen
+                searchedTerm={lastSearchQuery}
+                onReturnToWorkstation={() => setActiveTab('dashboard')}
+                onSearchNewTrace={handleSearchInput}
+              />
+            )}
+
             {activeTab === 'dashboard' && (
               <DashboardScreen
                 onSelectCase={handleSelectCase}
@@ -213,3 +262,4 @@ export function App() {
 }
 
 export default App;
+

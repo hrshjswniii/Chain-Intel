@@ -14,10 +14,12 @@ import {
   ShieldAlert,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Globe
 } from 'lucide-react';
 
 export type NavTab =
+  | 'landing'
   | 'dashboard'
   | 'new_investigation'
   | 'trace_analysis'
@@ -29,7 +31,8 @@ export type NavTab =
   | 'vasp_commons'
   | 'case_history'
   | 'system_status'
-  | 'settings';
+  | 'settings'
+  | 'not_found';
 
 interface SidebarProps {
   activeTab: NavTab;
@@ -66,6 +69,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const navItems: { id: NavTab; label: string; icon: React.ComponentType<{ className?: string }>; badge?: string }[] = [
+    { id: 'landing', label: 'Landing Page (Public)', icon: Globe },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'new_investigation', label: 'New Investigation', icon: PlusCircle },
     { id: 'trace_analysis', label: 'Trace Analysis & Graph', icon: GitCommit, badge: 'CORE' },
@@ -90,13 +94,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Brand Header with CHAIN-INTEL Logo & Collapse Toggle */}
         <div className={`h-14 px-3 border-b border-slate-800 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
           <div className="flex items-center space-x-2.5 overflow-hidden">
-            <span className="p-1.5 bg-blue-600 rounded text-white shadow-sm shrink-0">
-              <Shield className="w-5 h-5" />
-            </span>
+            <img src="/logo.png" alt="Chain Intel Logo" className="w-7 h-7 object-contain rounded shrink-0 bg-white p-0.5" />
             {!isCollapsed && (
               <div className="truncate">
                 <span className="font-extrabold text-base text-white tracking-tight block leading-none font-mono truncate">
-                  CHAIN-INTEL
+                  CHAIN INTEL
                 </span>
                 <span className="text-[10px] text-slate-400 font-mono block leading-none mt-1 truncate">
                   FORENSIC WORKSTATION
