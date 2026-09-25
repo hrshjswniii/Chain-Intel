@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import { Search, AlertTriangle, ArrowLeft, Shield, RefreshCw } from 'lucide-react';
+import { BlockchainType } from '../../types';
 
 interface NotFoundScreenProps {
   searchedTerm?: string;
+  errorMessage?: string;
+  statusBadge?: string;
   onReturnToWorkstation: () => void;
-  onSearchNewTrace: (query: string) => void;
+  onSearchNewTrace: (query: string, selectedChain?: BlockchainType) => void;
 }
 
 export const NotFoundScreen: React.FC<NotFoundScreenProps> = ({
   searchedTerm = '',
+  errorMessage,
+  statusBadge = '404 — TRACE NOT FOUND / UNKNOWN REFERENCE',
   onReturnToWorkstation,
   onSearchNewTrace,
 }) => {
@@ -26,18 +31,26 @@ export const NotFoundScreen: React.FC<NotFoundScreenProps> = ({
       {/* Badge Header */}
       <div className="inline-flex items-center space-x-2 px-3 py-1 bg-amber-50 border border-amber-200 text-amber-800 rounded-full text-xs font-mono font-bold mb-6">
         <AlertTriangle className="w-4 h-4 text-amber-600" />
-        <span>404 — TRACE NOT FOUND / UNKNOWN REFERENCE</span>
+        <span>{statusBadge}</span>
       </div>
 
       {/* Main Title */}
       <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
-        Case Reference or Target Address Not Found
+        {errorMessage ? 'Live Blockchain Query Failed' : 'Case Reference or Target Address Not Found'}
       </h1>
 
       <p className="text-sm sm:text-base text-slate-600 max-w-xl mb-8 leading-relaxed">
-        The requested wallet address, transaction hash, or case identifier{' '}
-        {searchedTerm ? <code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-xs font-bold">{searchedTerm}</code> : 'you queried'}{' '}
-        could not be resolved in active intelligence indices or requires a fresh multi-chain query.
+        {errorMessage ? (
+          <span className="text-rose-700 font-medium block bg-rose-50 p-3 rounded border border-rose-200 font-mono text-xs">
+            {errorMessage}
+          </span>
+        ) : (
+          <>
+            The requested wallet address, transaction hash, or case identifier{' '}
+            {searchedTerm ? <code className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-800 font-mono text-xs font-bold">{searchedTerm}</code> : 'you queried'}{' '}
+            could not be resolved in active intelligence indices or requires a fresh multi-chain query.
+          </>
+        )}
       </p>
 
       {/* Search Input Card */}
@@ -71,10 +84,10 @@ export const NotFoundScreen: React.FC<NotFoundScreenProps> = ({
         <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg">
           <h4 className="text-xs font-bold text-slate-900 flex items-center space-x-1.5 mb-1.5">
             <Shield className="w-4 h-4 text-blue-600" />
-            <span>Format Check</span>
+            <span>Format & Network Check</span>
           </h4>
           <p className="text-xs text-slate-600 leading-relaxed">
-            Ensure Ethereum addresses start with <code className="font-mono bg-white px-1 border rounded">0x</code> (42 chars), Bitcoin starts with <code className="font-mono bg-white px-1 border rounded">bc1</code>, or Solana/Tron formatting matches standard checksums.
+            Ensure Ethereum addresses start with <code className="font-mono bg-white px-1 border rounded">0x</code> (42 chars) and explicit network is selected in the search dropdown bar.
           </p>
         </div>
 
