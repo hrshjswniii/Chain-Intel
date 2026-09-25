@@ -21,13 +21,13 @@ import { loadSettings, saveSettings, resetSettings } from './engine/settings/set
 import { ChainSightSettings } from './types/settings';
 
 import { DEMO_INVESTIGATION_CASES } from './demo/demoCases';
-import { InvestigationCase } from './types';
+import { InvestigationCase, BlockchainType } from './types';
 import { matchAddress } from './engine/vasp/vaspDatabase';
 import { calculateAttributionScore } from './engine/scoring/scoringEngine';
-import { generateInvestigatorNarrative } from './engine/narrative/narrativeEngine';
 import { detectChainAndType } from './engine/adapters/chainAdapter';
-
-import { generateDynamicGraphAndHops } from './engine/scoring/graphGenerator';
+import { resolveAddressNetworksClient, NetworkMatch } from './engine/resolution/chainResolverClient';
+import { MultiNetworkResolverModal } from './components/resolution/MultiNetworkResolverModal';
+import { generateDynamicGraphAndHops, buildLiveGraphFromTransactions } from './engine/scoring/graphGenerator';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<NavTab>(() => {
@@ -40,6 +40,8 @@ export function App() {
 
   const [activeCase, setActiveCase] = useState<InvestigationCase>(DEMO_INVESTIGATION_CASES[0]);
   const [lastSearchQuery, setLastSearchQuery] = useState<string>('');
+  const [liveErrorMessage, setLiveErrorMessage] = useState<string | undefined>(undefined);
+  const [liveStatusBadge, setLiveStatusBadge] = useState<string | undefined>(undefined);
   const [isLegalNoticeOpen, setIsLegalNoticeOpen] = useState(false);
   const [isFreezeModalOpen, setIsFreezeModalOpen] = useState(false);
   const [dataSourceMode, setDataSourceMode] = useState<'DEMO' | 'LIVE'>('DEMO');
@@ -70,8 +72,67 @@ export function App() {
     setActiveTab('trace_analysis');
   };
 
-  const handleSearchInput = (query: string) => {
+  const [isResolvingNetwork, setIsResolvingNetwork] = useState(false);
+  const [multiNetworkMatches, setMultiNetworkMatches] = useState<NetworkMatch[]>([]);
+  const [pendingAddressForResolution, setPendingAddressForResolution] = useState<string>('');
+  const [isMultiNetworkModalOpen, setIsMultiNetworkModalOpen] = useState(false);
+
+  const executeLiveTraceForChain = async (
+    targetAddr: string,
+    chainToUse: BlockchainType,
+    options?: { maxHops?: number; direction?: 'OUT' | 'IN' | 'BOTH'; maxCounterpartiesPerNode?: number }
+  ) => {
+    try {
+      const response = await fetch('/api/v1/trace', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          targetInput: targetAddr,
+          chain: chainToUse,
+          maxHops: options?.maxHops || settings.investigation.defaultTraceDepth || 2,
+          direction: options?.direction || 'BOTH',
+          maxCounterpartiesPerNode: options?.maxCounterpartiesPerNode || 10,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'SUCCESS_WITH_DATA') {
+        const liveCase = buildLiveGraphFromTransactions(targetAddr, chainToUse, data.transactions || [], data);
+        setActiveCase(liveCase);
+        setActiveTab('trace_analysis');
+        return;
+      }
+
+      if (data.status === 'SUCCESS_NO_TRANSFERS') {
+        const liveCase = buildLiveGraphFromTransactions(targetAddr, chainToUse, [], data);
+        setActiveCase(liveCase);
+        setActiveTab('trace_analysis');
+        return;
+      }
+
+      if (data.status === 'LIVE_DATA_UNAVAILABLE' || data.status === 'INVALID_INPUT') {
+        setLiveStatusBadge(`LIVE MODE: ${data.status}`);
+        setLiveErrorMessage(data.message || 'Live network trace failed.');
+        setActiveTab('not_found');
+        return;
+      }
+    } catch (err: any) {
+      setLiveStatusBadge('LIVE MODE: LIVE_DATA_UNAVAILABLE');
+      setLiveErrorMessage(`API Gateway server connection error: ${err.message || 'Ensure API server is running on port 3001.'}`);
+      setActiveTab('not_found');
+      return;
+    }
+  };
+
+  const handleSearchInput = async (
+    query: string,
+    selectedChain?: BlockchainType,
+    options?: { maxHops?: number; direction?: 'OUT' | 'IN' | 'BOTH'; maxCounterpartiesPerNode?: number }
+  ) => {
     setLastSearchQuery(query);
+    setLiveErrorMessage(undefined);
+    setLiveStatusBadge(undefined);
 
     if (query.trim().toLowerCase() === '404' || query.trim().toLowerCase() === 'notfound') {
       setActiveTab('not_found');
@@ -84,51 +145,85 @@ export function App() {
         c.targetInput.toLowerCase() === query.toLowerCase()
     );
 
-    if (foundDemo) {
+    if (foundDemo && dataSourceMode === 'DEMO') {
       setActiveCase(foundDemo);
       setActiveTab('trace_analysis');
       return;
     }
 
     const targetAddr = query.trim();
-    const detection = detectChainAndType(targetAddr);
 
-    if (!detection.isValid && !targetAddr.startsWith('0x') && !targetAddr.startsWith('bc1') && !targetAddr.startsWith('T') && targetAddr.length < 5) {
-      setActiveTab('not_found');
-      return;
+    if (dataSourceMode === 'LIVE') {
+      // If chain is explicitly provided (manual override), execute trace directly
+      if (selectedChain) {
+        await executeLiveTraceForChain(targetAddr, selectedChain, options);
+        return;
+      }
+
+      // Automatic Evidence-Based Network Resolution Protocol
+      setIsResolvingNetwork(true);
+      try {
+        const resolution = await resolveAddressNetworksClient(targetAddr);
+        setIsResolvingNetwork(false);
+
+        if (resolution.status === 'RESOLVED' && resolution.matches && resolution.matches.length > 0) {
+          await executeLiveTraceForChain(targetAddr, resolution.matches[0].chain as BlockchainType, options);
+          return;
+        }
+
+        if (resolution.status === 'MULTIPLE_NETWORKS') {
+          setPendingAddressForResolution(targetAddr);
+          setMultiNetworkMatches(resolution.matches);
+          setIsMultiNetworkModalOpen(true);
+          return;
+        }
+
+        if (resolution.status === 'NO_ACTIVITY') {
+          setLiveStatusBadge('NO SUPPORTED BLOCKCHAIN ACTIVITY FOUND');
+          setLiveErrorMessage(resolution.message || 'The supplied address could not be associated with observable activity on the currently supported networks.');
+          setActiveTab('not_found');
+          return;
+        }
+
+        if (resolution.status === 'LIVE_DATA_UNAVAILABLE' || resolution.status === 'INVALID_ADDRESS') {
+          setLiveStatusBadge(`NETWORK RESOLUTION FAILED (${resolution.status})`);
+          setLiveErrorMessage(resolution.message || 'Unable to query blockchain data. No fallback/mock data was used.');
+          setActiveTab('not_found');
+          return;
+        }
+      } catch (err: any) {
+        setIsResolvingNetwork(false);
+        setLiveStatusBadge('NETWORK RESOLUTION FAILED');
+        setLiveErrorMessage(`API Gateway server connection error: ${err.message || 'Ensure API server is running on port 3001.'}`);
+        setActiveTab('not_found');
+        return;
+      }
+    } else {
+      // DEMO mode
+      const detection = detectChainAndType(targetAddr);
+      const chainToUse = selectedChain || (detection.isValid ? detection.chain : 'Ethereum');
+
+      if (!detection.isValid && !targetAddr.startsWith('0x') && !targetAddr.startsWith('bc1') && !targetAddr.startsWith('T') && targetAddr.length < 5) {
+        setActiveTab('not_found');
+        return;
+      }
+
+      const dynamicCase = generateDynamicGraphAndHops({
+        targetInput: targetAddr,
+        chain: chainToUse,
+        maxHops: options?.maxHops || settings.investigation.defaultTraceDepth || 2,
+        dataSource: 'DEMO',
+      });
+
+      setActiveCase(dynamicCase);
+      setActiveTab('trace_analysis');
     }
-
-    const dynamicCase = generateDynamicGraphAndHops({
-      targetInput: targetAddr,
-      chain: detection.chain,
-      maxHops: settings.investigation.defaultTraceDepth || 4,
-      dataSource: dataSourceMode,
-    });
-
-    setActiveCase(dynamicCase);
-    setActiveTab('trace_analysis');
   };
 
   const handleStartTraceFromForm = async (newCaseParams: Partial<InvestigationCase>) => {
     const targetAddr = newCaseParams.targetInput || '0x71C7656EC7ab88b098defb751b7401b5f6d8976f';
-    const detection = detectChainAndType(targetAddr);
-    const requestedHops = newCaseParams.maxHops || 4;
-
-    const dynamicCase = generateDynamicGraphAndHops({
-      targetInput: targetAddr,
-      chain: newCaseParams.chain || detection.chain,
-      maxHops: requestedHops,
-      caseReference: newCaseParams.caseReference,
-      investigator: newCaseParams.investigator,
-      incidentType: newCaseParams.incidentType,
-      priority: newCaseParams.priority,
-      minTransferValue: newCaseParams.minTransferValue,
-      notes: newCaseParams.notes,
-      dataSource: dataSourceMode,
-    });
-
-    setActiveCase(dynamicCase);
-    setActiveTab('trace_analysis');
+    const selectedChain = newCaseParams.chain || 'Ethereum';
+    handleSearchInput(targetAddr, selectedChain);
   };
 
   // If viewing Landing Page, render full public landing view
@@ -165,6 +260,7 @@ export function App() {
             onToggleDataSourceMode={() =>
               setDataSourceMode((prev) => (prev === 'DEMO' ? 'LIVE' : 'DEMO'))
             }
+            isResolvingNetwork={isResolvingNetwork}
           />
 
           {/* Active Screen View Router */}
@@ -172,6 +268,8 @@ export function App() {
             {activeTab === 'not_found' && (
               <NotFoundScreen
                 searchedTerm={lastSearchQuery}
+                errorMessage={liveErrorMessage}
+                statusBadge={liveStatusBadge}
                 onReturnToWorkstation={() => setActiveTab('dashboard')}
                 onSearchNewTrace={handleSearchInput}
               />
@@ -256,6 +354,18 @@ export function App() {
         currentCase={activeCase}
         isOpen={isFreezeModalOpen}
         onClose={() => setIsFreezeModalOpen(false)}
+      />
+
+      {/* Multiple Networks Detected Scope Selector Modal */}
+      <MultiNetworkResolverModal
+        isOpen={isMultiNetworkModalOpen}
+        address={pendingAddressForResolution}
+        matches={multiNetworkMatches}
+        onSelectNetwork={async (selectedMatch: NetworkMatch) => {
+          setIsMultiNetworkModalOpen(false);
+          await executeLiveTraceForChain(pendingAddressForResolution, selectedMatch.chain as BlockchainType);
+        }}
+        onClose={() => setIsMultiNetworkModalOpen(false)}
       />
     </div>
   );

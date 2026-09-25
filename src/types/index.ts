@@ -143,6 +143,15 @@ export interface GraphNode {
   isDestinationVASP?: boolean;
   vaspName?: string;
   lastActive: string;
+  address?: string;
+  hop?: number;
+  inboundTransactionCount?: number;
+  outboundTransactionCount?: number;
+  inboundVolume?: number;
+  outboundVolume?: number;
+  firstSeen?: string;
+  lastSeen?: string;
+  sourceProvider?: string;
 }
 
 export interface GraphEdge {
@@ -150,9 +159,16 @@ export interface GraphEdge {
   source: string;
   target: string;
   amount: number;
+  value?: string;
   asset: string;
   txHash: string;
+  blockNumber?: number;
+  blockHash?: string;
   timestamp: string;
+  direction?: 'IN' | 'OUT';
+  hop?: number;
+  sourceProvider?: string;
+  category?: string;
   typology?: string;
   isSuspicious?: boolean;
 }
@@ -193,6 +209,14 @@ export interface ForensicTimelineEvent {
   amount: string;
   txHash: string;
   risk: RiskLevel;
+  hop?: number;
+  blockNumber?: number;
+  blockHash?: string;
+  direction?: 'IN' | 'OUT';
+  asset?: string;
+  value?: string;
+  chain?: BlockchainType;
+  sourceProvider?: string;
 }
 
 export interface AuditLogEntry {
