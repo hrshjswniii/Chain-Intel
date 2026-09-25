@@ -5,20 +5,26 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "server": "node server/index.js",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },
   "dependencies": {
+    "cors": "^2.8.6",
     "cytoscape": "^3.34.3",
     "cytoscape-dagre": "^4.0.1",
+    "dotenv": "^18.0.3",
+    "express": "^5.2.1",
     "lucide-react": "^1.42.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
+    "@types/cors": "^2.8.19",
     "@types/cytoscape": "^3.21.9",
+    "@types/express": "^5.0.6",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
