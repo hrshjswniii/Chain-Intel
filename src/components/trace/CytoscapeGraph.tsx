@@ -17,7 +17,9 @@ interface CytoscapeGraphProps {
   nodes: GraphNode[];
   edges: GraphEdge[];
   selectedNodeId?: string;
+  selectedEdgeId?: string;
   onSelectNode: (node: GraphNode | null) => void;
+  onSelectEdge?: (edge: GraphEdge | null) => void;
   activeHopIndex?: number;
   filterSuspiciousOnly?: boolean;
 }
@@ -26,7 +28,9 @@ export const CytoscapeGraph: React.FC<CytoscapeGraphProps> = ({
   nodes,
   edges,
   selectedNodeId,
+  selectedEdgeId,
   onSelectNode,
+  onSelectEdge,
   activeHopIndex = -1,
   filterSuspiciousOnly = false,
 }) => {
@@ -58,7 +62,7 @@ export const CytoscapeGraph: React.FC<CytoscapeGraphProps> = ({
         id: e.id,
         source: e.source,
         target: e.target,
-        label: `${e.amount} ${e.asset}`,
+        label: `${e.value || e.amount} ${e.asset}`,
         isSuspicious: e.isSuspicious,
         typology: e.typology,
       },
@@ -180,6 +184,14 @@ export const CytoscapeGraph: React.FC<CytoscapeGraphProps> = ({
             'width': 3,
           },
         },
+        {
+          selector: 'edge:selected',
+          style: {
+            'line-color': '#059669',
+            'target-arrow-color': '#059669',
+            'width': 4,
+          },
+        },
       ] as any,
       layout: {
         name: 'dagre',
@@ -196,12 +208,23 @@ export const CytoscapeGraph: React.FC<CytoscapeGraphProps> = ({
       const matched = nodes.find((n) => n.id === nodeData.id);
       if (matched) {
         onSelectNode(matched);
+        if (onSelectEdge) onSelectEdge(null);
+      }
+    });
+
+    cy.on('tap', 'edge', (evt) => {
+      const edgeData = evt.target.data();
+      const matched = edges.find((e) => e.id === edgeData.id);
+      if (matched && onSelectEdge) {
+        onSelectEdge(matched);
+        onSelectNode(null);
       }
     });
 
     cy.on('tap', (evt) => {
       if (evt.target === cy) {
         onSelectNode(null);
+        if (onSelectEdge) onSelectEdge(null);
       }
     });
 
@@ -220,6 +243,15 @@ export const CytoscapeGraph: React.FC<CytoscapeGraphProps> = ({
       cyRef.current.$('node:selected').unselect();
     }
   }, [selectedNodeId]);
+
+  useEffect(() => {
+    if (!cyRef.current) return;
+    if (selectedEdgeId) {
+      cyRef.current.$(`edge[id = "${selectedEdgeId}"]`).select();
+    } else {
+      cyRef.current.$('edge:selected').unselect();
+    }
+  }, [selectedEdgeId]);
 
   useEffect(() => {
     if (!cyRef.current) return;
