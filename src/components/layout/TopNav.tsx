@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { Search, Database, Sun, Moon } from 'lucide-react';
+import { Search, Database } from 'lucide-react';
 import { detectChainAndType } from '../../engine/adapters/chainAdapter';
-import { InvestigationCase } from '../../types';
+import { InvestigationCase, BlockchainType } from '../../types';
 
 interface TopNavProps {
-  onSearchInput: (query: string) => void;
+  onSearchInput: (
+    query: string,
+    selectedChain?: BlockchainType,
+    options?: { maxHops?: number; direction?: 'OUT' | 'IN' | 'BOTH' }
+  ) => void;
   activeCase: InvestigationCase;
   dataSourceMode: 'DEMO' | 'LIVE';
   onToggleDataSourceMode: () => void;
+  isResolvingNetwork?: boolean;
 }
 
 export const TopNav: React.FC<TopNavProps> = ({
@@ -15,19 +20,9 @@ export const TopNav: React.FC<TopNavProps> = ({
   activeCase,
   dataSourceMode,
   onToggleDataSourceMode,
+  isResolvingNetwork = false,
 }) => {
   const [searchInput, setSearchInput] = useState('');
-  const [detectedChain, setDetectedChain] = useState<{ chain: string; isValid: boolean } | null>(null);
-
-  const handleSearchChange = (val: string) => {
-    setSearchInput(val);
-    if (val.trim()) {
-      const res = detectChainAndType(val);
-      setDetectedChain(res);
-    } else {
-      setDetectedChain(null);
-    }
-  };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,30 +33,37 @@ export const TopNav: React.FC<TopNavProps> = ({
 
   return (
     <header className="bg-white border-b border-slate-200 h-14 px-6 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
-      {/* Search Input Bar with Auto Chain Detection */}
-      <form onSubmit={handleSearchSubmit} className="flex-1 max-w-xl relative">
-        <div className="relative flex items-center">
+      {/* Primary Investigator Search Input Bar with Automatic Network Resolution */}
+      <form onSubmit={handleSearchSubmit} className="flex-1 max-w-2xl relative flex items-center space-x-2">
+        <div className="relative flex-1 flex items-center">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
           <input
             type="text"
             placeholder="Enter wallet address (0x... / bc1...), transaction hash, or case reference..."
             value={searchInput}
-            onChange={(e) => handleSearchChange(e.target.value)}
+            onChange={(e) => setSearchInput(e.target.value)}
+            disabled={isResolvingNetwork}
             className="w-full pl-9 pr-24 py-1.5 bg-slate-50 border border-slate-300 rounded-md text-xs font-mono text-slate-900 placeholder:font-sans placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
           />
 
-          {detectedChain && detectedChain.isValid && (
-            <span className="absolute right-2 text-[10px] font-bold px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded font-sans uppercase">
-              {detectedChain.chain} Detected
+          {isResolvingNetwork && (
+            <span className="absolute right-2 text-[10px] font-bold px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-sans animate-pulse">
+              Resolving network...
             </span>
           )}
         </div>
+
+        <button
+          type="submit"
+          disabled={isResolvingNetwork || !searchInput.trim()}
+          className="px-4 py-1.5 bg-blue-900 hover:bg-blue-950 disabled:bg-slate-300 text-white text-xs font-bold rounded-md transition shadow-2xs shrink-0 flex items-center space-x-1.5"
+        >
+          <span>Trace</span>
+        </button>
       </form>
 
       {/* Header Right Status & Profile Controls */}
       <div className="flex items-center space-x-4">
-        {/* Data Source Mode Toggle Tag */}
-
         {/* Data Source Mode Toggle Tag */}
         <button
           onClick={onToggleDataSourceMode}
@@ -78,7 +80,7 @@ export const TopNav: React.FC<TopNavProps> = ({
 
         {/* Active Case Indicator */}
         <div className="hidden md:flex items-center space-x-2 text-xs border-l border-slate-200 pl-4">
-          <span className="text-slate-400 font-medium">Active Investigation:</span>
+          <span className="text-slate-400 font-medium">Active Case:</span>
           <span className="font-mono font-bold text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
             {activeCase.caseReference}
           </span>

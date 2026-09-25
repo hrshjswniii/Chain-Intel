@@ -6,9 +6,11 @@ export const DEFAULT_SETTINGS: ChainSightSettings = {
     density: 'comfortable',
   },
   investigation: {
+    networkResolutionMode: 'automatic',
     defaultChain: 'Ethereum',
-    defaultTraceDepth: 3,
-    minTxValue: 100,
+    defaultTraceDepth: 2,
+    maxTraceDepth: 5,
+    minTxValue: 0,
     crossChainTracing: true,
     showLowConfidence: true,
   },

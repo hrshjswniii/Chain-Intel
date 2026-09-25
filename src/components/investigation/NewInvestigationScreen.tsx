@@ -175,19 +175,11 @@ export const NewInvestigationScreen: React.FC<NewInvestigationScreenProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Blockchain Network</label>
-            <select
-              value={chain}
-              onChange={(e) => setChain(e.target.value as BlockchainType)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-md text-xs font-medium text-slate-800 focus:outline-none"
-            >
-              <option value="Ethereum">Ethereum (EVM)</option>
-              <option value="Bitcoin">Bitcoin (BTC)</option>
-              <option value="Polygon">Polygon (EVM)</option>
-              <option value="BNB">BNB Smart Chain</option>
-              <option value="Tron">Tron (TRC-20)</option>
-              <option value="Solana">Solana</option>
-            </select>
+            <label className="text-xs font-bold text-slate-700 block mb-1">Network Resolution</label>
+            <div className="px-3 py-2 bg-slate-50 border border-slate-300 rounded-md text-xs font-semibold text-blue-900 flex items-center justify-between">
+              <span>Automatic (Probe Activity)</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
           </div>
 
           <div>
@@ -215,45 +207,38 @@ export const NewInvestigationScreen: React.FC<NewInvestigationScreenProps> = ({
           </div>
         </div>
 
-        {/* Tracing Controls & Parameters */}
-        <div className="p-4 bg-slate-50 border border-slate-200 rounded-md space-y-4">
-          <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-1.5">
-            <Sliders className="w-4 h-4 text-blue-600" />
-            <span>Trace Depth & Filtering Configuration</span>
-          </h4>
+        {/* Engine-Controlled Tracing Parameters */}
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded-md space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-1.5">
+              <Sliders className="w-4 h-4 text-blue-600" />
+              <span>Engine-Controlled Tracing Safeguards</span>
+            </h4>
+            <span className="text-[10px] font-mono font-bold text-slate-600 bg-slate-200 px-2 py-0.5 rounded">
+              Configured Bounds Active
+            </span>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-700 mb-1">
-                <span>Maximum Hop Depth</span>
-                <span className="font-mono text-blue-700 font-bold">{maxHops} Hops</span>
-              </div>
-              <input
-                type="range"
-                min={1}
-                max={6}
-                value={maxHops}
-                onChange={(e) => setMaxHops(Number(e.target.value))}
-                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-              />
-              <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                <span>1 Hop</span>
-                <span>3 Hops</span>
-                <span>6 Hops</span>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div className="p-2.5 bg-white border border-slate-200 rounded">
+              <span className="text-slate-500 block text-[10px] font-bold uppercase">Automatic Bounded Traversal</span>
+              <span className="font-semibold text-slate-900 block mt-0.5">
+                Engine automatically expands up to 5 Hops with cycle prevention
+              </span>
             </div>
 
-            <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">
-                Minimum Transfer Threshold (ETH / BTC)
-              </label>
-              <input
-                type="number"
-                step="0.05"
-                value={minTransferValue}
-                onChange={(e) => setMinTransferValue(Number(e.target.value))}
-                className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-md text-xs font-mono font-semibold text-slate-900 focus:outline-none"
-              />
+            <div className="p-2.5 bg-white border border-slate-200 rounded">
+              <span className="text-slate-500 block text-[10px] font-bold uppercase">Minimum Transfer Value Threshold</span>
+              <div className="flex items-center space-x-2 mt-1">
+                <input
+                  type="number"
+                  step="0.05"
+                  value={minTransferValue}
+                  onChange={(e) => setMinTransferValue(Number(e.target.value))}
+                  className="px-2 py-1 bg-slate-50 border border-slate-300 rounded font-mono font-bold text-slate-900 text-xs w-28"
+                />
+                <span className="text-[11px] text-slate-500">ETH / Native Token</span>
+              </div>
             </div>
           </div>
         </div>

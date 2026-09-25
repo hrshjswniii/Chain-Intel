@@ -2,8 +2,7 @@ import { BlockchainType } from './index';
 
 export type ThemeOption = 'light' | 'dark' | 'system';
 export type DashboardDensity = 'comfortable' | 'compact';
-export type TraceDepthOption = 1 | 3 | 5 | 10;
-export type AlertSeverityThreshold = 'low' | 'medium' | 'high' | 'critical';
+export type TraceDepthOption = number;
 
 export interface AppearanceSettings {
   theme: ThemeOption;
@@ -11,8 +10,10 @@ export interface AppearanceSettings {
 }
 
 export interface InvestigationSettings {
+  networkResolutionMode: 'automatic' | 'manual';
   defaultChain: BlockchainType;
-  defaultTraceDepth: TraceDepthOption;
+  defaultTraceDepth: number;
+  maxTraceDepth: number;
   minTxValue: number;
   crossChainTracing: boolean;
   showLowConfidence: boolean;
@@ -24,6 +25,8 @@ export interface AttributionSettings {
   showContributingEvidence: boolean;
   scoringMethodology: string; // "Explainable Heuristic"
 }
+
+export type AlertSeverityThreshold = 'low' | 'medium' | 'high' | 'critical';
 
 export interface AlertSettings {
   newTransaction: boolean;

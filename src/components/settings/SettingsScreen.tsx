@@ -320,50 +320,58 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
           </div>
 
           <div className="divide-y divide-slate-200 dark:divide-slate-800 space-y-4 pt-2">
-            {/* Default Blockchain */}
+            {/* Network Resolution Mode */}
             <div className="pt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <label className="text-xs font-bold text-slate-900 dark:text-slate-100 block">
-                  Default Blockchain Network
+                  Network Resolution Mode
                 </label>
                 <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                  Pre-selected network when initiating new manual wallet traces.
+                  Automatic evidence-based probing across supported RPC providers versus manual chain selection.
                 </span>
               </div>
 
-              <select
-                value={settings.investigation.defaultChain}
-                onChange={(e) =>
-                  updateInvestigation({ defaultChain: e.target.value as BlockchainType })
-                }
-                className="px-3 py-1.5 text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Ethereum">Ethereum (ERC-20)</option>
-                <option value="Bitcoin">Bitcoin (UTXO)</option>
-                <option value="Solana">Solana (SPL)</option>
-                <option value="Tron">TRON (TRC-20)</option>
-                <option value="BNB">BNB Chain (BEP-20)</option>
-                <option value="Polygon">Polygon (POS)</option>
-              </select>
+              <div className="inline-flex rounded-md border border-slate-300 dark:border-slate-700 p-1 bg-slate-100 dark:bg-slate-800 shrink-0">
+                <button
+                  onClick={() => updateInvestigation({ networkResolutionMode: 'automatic' })}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded transition ${
+                    settings.investigation.networkResolutionMode === 'automatic'
+                      ? 'bg-blue-600 text-white shadow-2xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Automatic (Evidence Probe)
+                </button>
+                <button
+                  onClick={() => updateInvestigation({ networkResolutionMode: 'manual' })}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded transition ${
+                    settings.investigation.networkResolutionMode === 'manual'
+                      ? 'bg-blue-600 text-white shadow-2xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  Manual Override
+                </button>
+              </div>
             </div>
 
-            {/* Default Trace Depth */}
+            {/* Default Trace Depth Bounds */}
             <div className="pt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <label className="text-xs font-bold text-slate-900 dark:text-slate-100 block">
-                  Default Trace Depth (Hops)
+                  Configured Trace Depth Bounds (Hops)
                 </label>
                 <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5">
-                  Maximum transfer graph traversal depth for identifying destination VASPs.
+                  Engine-controlled BFS expansion limit for automated unhosted wallet tracing.
                 </span>
               </div>
 
               <div className="inline-flex rounded-md border border-slate-300 dark:border-slate-700 p-1 bg-slate-100 dark:bg-slate-800">
-                {[1, 3, 5, 10].map((hopCount) => (
+                {[1, 2, 3, 5].map((hopCount) => (
                   <button
                     key={hopCount}
                     onClick={() =>
-                      updateInvestigation({ defaultTraceDepth: hopCount as 1 | 3 | 5 | 10 })
+                      updateInvestigation({ defaultTraceDepth: hopCount, maxTraceDepth: Math.max(hopCount, settings.investigation.maxTraceDepth || 5) })
                     }
                     className={`px-3 py-1.5 text-xs font-semibold rounded transition ${
                       settings.investigation.defaultTraceDepth === hopCount
