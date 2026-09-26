@@ -146,7 +146,7 @@ export async function fetchPolygonTransfers(address, options = {}) {
       const direction = fromAddr === targetAddress ? 'OUT' : 'IN';
       const blockNumHex = raw.blockNum;
       const blockNumDecimal = blockNumHex ? parseInt(blockNumHex, 16) : 0;
-      const isoTimestamp = await resolveBlockTimestamp(blockNumHex, primaryEndpoint, headers);
+      const isoTimestamp = raw.metadata?.blockTimestamp || (await resolveBlockTimestamp(blockNumHex, primaryEndpoint, headers));
 
       normalizedList.push({
         chain: 'Polygon',

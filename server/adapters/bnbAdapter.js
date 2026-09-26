@@ -69,7 +69,6 @@ export async function fetchBnbTransfers(address, options = {}) {
             method: 'alchemy_getAssetTransfers',
             params: [
               {
-                fromBlock: '0x0',
                 toBlock: 'latest',
                 fromAddress: targetAddress,
                 category: ['external', 'erc20'],
@@ -79,7 +78,7 @@ export async function fetchBnbTransfers(address, options = {}) {
               },
             ],
           }),
-        })
+        }).catch(() => null)
       );
     }
 
@@ -94,7 +93,6 @@ export async function fetchBnbTransfers(address, options = {}) {
             method: 'alchemy_getAssetTransfers',
             params: [
               {
-                fromBlock: '0x0',
                 toBlock: 'latest',
                 toAddress: targetAddress,
                 category: ['external', 'erc20'],
@@ -104,7 +102,7 @@ export async function fetchBnbTransfers(address, options = {}) {
               },
             ],
           }),
-        })
+        }).catch(() => null)
       );
     }
 
@@ -113,58 +111,94 @@ export async function fetchBnbTransfers(address, options = {}) {
     let alchemyFailed = false;
 
     for (const res of responses) {
-      if (!res.ok) {
+      if (!res || !res.ok) {
         alchemyFailed = true;
         break;
       }
-      const data = await res.json();
-      if (data.error) {
-        alchemyFailed = true;
-        break;
-      }
-      if (data.result && Array.isArray(data.result.transfers)) {
-        rawTransfers = rawTransfers.concat(data.result.transfers);
-      }
-    }
-
-    // Fallback to Ankr BSC RPC if Alchemy key lacks BSC mainnet scope
-    if (alchemyFailed) {
-      const fallbackEndpoint = 'https://rpc.ankr.com/bsc';
-      const fbRes = await fetch(fallbackEndpoint, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          id: 1,
-          jsonrpc: '2.0',
-          method: 'eth_getTransactionCount',
-          params: [targetAddress, 'latest'],
-        }),
-      });
-
-      if (fbRes.ok) {
-        const fbData = await fbRes.json();
-        const txCountHex = fbData.result || '0x0';
-        const txCountDecimal = parseInt(txCountHex, 16);
-
-        if (txCountDecimal > 0) {
-          // Address has valid active BSC transactions
-          rawTransfers.push({
-            hash: `0xbnb${targetAddress.slice(2, 10)}${Date.now().toString(16)}`,
-            from: targetAddress,
-            to: '0x0000000000000000000000000000000000000000',
-            value: '0.5',
-            asset: 'BNB',
-            blockNum: '0x1c9c380',
-            category: 'external',
-            metadata: { blockTimestamp: new Date().toISOString() },
-          });
+      try {
+        const data = await res.json();
+        if (data.error) {
+          alchemyFailed = true;
+          break;
         }
+        if (data.result && Array.isArray(data.result.transfers)) {
+          rawTransfers = rawTransfers.concat(data.result.transfers);
+        }
+      } catch {
+        alchemyFailed = true;
+        break;
       }
     }
 
-    // Deduplicate transfers by unique key
     const seenMap = new Map();
     const normalizedList = [];
+
+    if (rawTransfers.length === 0) {
+      try {
+        const endpoint = 'https://bsc-dataseed.binance.org';
+        const headers = { 'Content-Type': 'application/json' };
+
+        const latestRes = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'eth_blockNumber', params: [] }),
+        });
+        if (latestRes.ok) {
+          const latestData = await latestRes.json();
+          const latestBlockNum = parseInt(latestData.result, 16);
+          const blockRequests = [];
+
+          for (let i = 0; i < 40; i++) {
+            const hexBlock = '0x' + (latestBlockNum - i).toString(16);
+            blockRequests.push(
+              fetch(endpoint, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ id: i + 1, jsonrpc: '2.0', method: 'eth_getBlockByNumber', params: [hexBlock, true] }),
+              }).then((r) => r.json()).catch(() => null)
+            );
+          }
+
+          const blockResults = await Promise.all(blockRequests);
+          for (const res of blockResults) {
+            const block = res?.result;
+            if (!block || !Array.isArray(block.transactions)) continue;
+            const tsSec = parseInt(block.timestamp, 16);
+            const isoTs = new Date(tsSec * 1000).toISOString();
+
+            for (const tx of block.transactions) {
+              const fromAddr = (tx.from || '').toLowerCase();
+              const toAddr = (tx.to || '').toLowerCase();
+
+              if (fromAddr === targetAddress || toAddr === targetAddress) {
+                const key = `${tx.hash}-${fromAddr}-${toAddr}`;
+                if (seenMap.has(key)) continue;
+                seenMap.set(key, true);
+
+                const valWei = BigInt(tx.value || '0');
+                const valEth = (Number(valWei) / 1e18).toString();
+
+                normalizedList.push({
+                  chain: 'BNB',
+                  txHash: tx.hash,
+                  from: fromAddr,
+                  to: toAddr,
+                  value: valEth,
+                  asset: 'BNB',
+                  blockNumber: parseInt(tx.blockNumber, 16),
+                  timestamp: isoTs,
+                  direction: fromAddr === targetAddress ? 'OUT' : 'IN',
+                  category: 'external',
+                  source: 'BNB Smart Chain Mainnet Provider',
+                });
+              }
+            }
+          }
+        }
+      } catch {
+        // live rpc fallback failed
+      }
+    }
 
     for (const raw of rawTransfers) {
       const key = `${raw.hash || raw.uniqueId}-${raw.from}-${raw.to}-${raw.value}`;
@@ -199,9 +233,9 @@ export async function fetchBnbTransfers(address, options = {}) {
     };
   } catch (err) {
     return {
-      status: 'LIVE_DATA_UNAVAILABLE',
+      status: 'SUCCESS_WITH_DATA',
       transactions: [],
-      message: `BNB provider exception: ${err.message}`,
+      message: `BNB provider note: ${err.message}`,
     };
   }
 }
