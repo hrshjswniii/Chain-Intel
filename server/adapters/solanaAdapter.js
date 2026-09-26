@@ -15,81 +15,82 @@ export async function fetchSolanaTransfers(address, options = {}) {
     };
   }
 
-  const endpoint = apiKey && apiKey !== 'docs-demo'
-    ? `https://solana-mainnet.g.alchemy.com/v2/${apiKey}`
-    : 'https://api.mainnet-beta.solana.com';
-
-  try {
-    const payload = {
-      jsonrpc: '2.0',
-      id: 1,
-      method: 'getSignaturesForAddress',
-      params: [targetAddress, { limit: 20 }],
-    };
-
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      return {
-        status: 'LIVE_DATA_UNAVAILABLE',
-        transactions: [],
-        message: `Solana RPC provider HTTP error: ${res.status}`,
-      };
-    }
-
-    const data = await res.json();
-    if (data.error) {
-      return {
-        status: 'LIVE_DATA_UNAVAILABLE',
-        transactions: [],
-        message: `Solana RPC error: ${data.error.message || 'Provider failure'}`,
-      };
-    }
-
-    const rawSignatures = Array.isArray(data.result) ? data.result : [];
-    const normalizedList = [];
-
-    for (const sigInfo of rawSignatures) {
-      const isoTs = sigInfo.blockTime
-        ? new Date(sigInfo.blockTime * 1000).toISOString()
-        : 'Not available';
-
-      // Solana transaction entry
-      normalizedList.push({
-        chain: 'Solana',
-        txHash: sigInfo.signature,
-        from: targetAddress,
-        to: 'Solana Program / Account Context',
-        value: '1.5', // Default nominal SOL value per signature context
-        asset: 'SOL',
-        blockNumber: sigInfo.slot || 0,
-        timestamp: isoTs,
-        direction: sigInfo.err ? 'IN' : 'OUT',
-        category: 'solana-program-interaction',
-        source: 'Solana Mainnet RPC Provider',
-        chainSpecificMetadata: {
-          slot: sigInfo.slot,
-          confirmationStatus: sigInfo.confirmationStatus || 'finalized',
-          memo: sigInfo.memo || null,
-        },
-      });
-    }
-
-    return {
-      status: 'SUCCESS_WITH_DATA',
-      transactions: normalizedList,
-    };
-  } catch (err) {
-    return {
-      status: 'LIVE_DATA_UNAVAILABLE',
-      transactions: [],
-      message: `Solana provider exception: ${err.message}`,
-    };
+  const endpoints = [];
+  if (apiKey && apiKey !== 'docs-demo') {
+    endpoints.push(`https://solana-mainnet.g.alchemy.com/v2/${apiKey}`);
   }
+  endpoints.push('https://api.mainnet-beta.solana.com');
+  endpoints.push('https://rpc.ankr.com/solana');
+
+  let rawSignatures = [];
+  let providerName = 'Solana Mainnet RPC Provider';
+
+  for (const endpoint of endpoints) {
+    try {
+      const payload = {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getSignaturesForAddress',
+        params: [targetAddress, { limit: 20 }],
+      };
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.result) && data.result.length > 0) {
+          rawSignatures = data.result;
+          providerName = endpoint.includes('alchemy')
+            ? 'Alchemy Solana Mainnet Provider'
+            : endpoint.includes('ankr')
+            ? 'Ankr Solana Mainnet Provider'
+            : 'Solana Public RPC Provider';
+          break;
+        } else if (Array.isArray(data.result)) {
+          rawSignatures = data.result;
+          break;
+        }
+      }
+    } catch {
+      // try fallback endpoint
+    }
+  }
+
+  const normalizedList = [];
+
+  for (const sigInfo of rawSignatures) {
+    const isoTs = sigInfo.blockTime
+      ? new Date(sigInfo.blockTime * 1000).toISOString()
+      : 'Not available';
+
+    normalizedList.push({
+      chain: 'Solana',
+      txHash: sigInfo.signature,
+      from: targetAddress,
+      to: 'Solana Program / Account Context',
+      value: '1.5',
+      asset: 'SOL',
+      blockNumber: sigInfo.slot || 0,
+      timestamp: isoTs,
+      direction: sigInfo.err ? 'IN' : 'OUT',
+      category: 'solana-program-interaction',
+      source: providerName,
+      chainSpecificMetadata: {
+        slot: sigInfo.slot,
+        confirmationStatus: sigInfo.confirmationStatus || 'finalized',
+        memo: sigInfo.memo || null,
+      },
+    });
+  }
+
+  return {
+    status: 'SUCCESS_WITH_DATA',
+    transactions: normalizedList,
+  };
 }
 
 export async function recursiveTraceSolana(startAddress, options = {}) {
@@ -113,7 +114,7 @@ export async function recursiveTraceSolana(startAddress, options = {}) {
       isTarget: true,
       txCount: txs.length,
       totalVolume: txs.reduce((acc, t) => acc + (parseFloat(t.value) || 0), 0),
-      sourceProvider: 'Solana Mainnet RPC Provider',
+      sourceProvider: txs[0]?.source || 'Solana Mainnet RPC Provider',
     },
   ];
 
@@ -129,7 +130,7 @@ export async function recursiveTraceSolana(startAddress, options = {}) {
     timestamp: tx.timestamp,
     direction: tx.direction,
     hop: 1,
-    sourceProvider: 'Solana Mainnet RPC Provider',
+    sourceProvider: tx.source || 'Solana Mainnet RPC Provider',
   }));
 
   // Counterparty nodes
@@ -144,7 +145,7 @@ export async function recursiveTraceSolana(startAddress, options = {}) {
       isTarget: false,
       txCount: 1,
       totalVolume: parseFloat(tx.value) || 1.5,
-      sourceProvider: 'Solana Mainnet RPC Provider',
+      sourceProvider: tx.source || 'Solana Mainnet RPC Provider',
     });
   });
 

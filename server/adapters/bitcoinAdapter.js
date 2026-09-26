@@ -15,12 +15,13 @@ export async function fetchBitcoinTransfers(address, options = {}) {
   }
 
   const endpoints = [
+    `https://blockchain.info/rawaddr/${targetAddress}?limit=25`,
     `https://mempool.space/api/address/${targetAddress}/txs`,
     `https://blockstream.info/api/address/${targetAddress}/txs`,
   ];
 
   let rawTxs = null;
-  let successfulProvider = 'Mempool.space Bitcoin Provider';
+  let successfulProvider = 'Blockchain.info API Provider';
 
   for (const endpoint of endpoints) {
     try {
@@ -39,6 +40,16 @@ export async function fetchBitcoinTransfers(address, options = {}) {
           successfulProvider = endpoint.includes('blockstream')
             ? 'Blockstream API Bitcoin Provider'
             : 'Mempool.space Bitcoin Provider';
+          break;
+        } else if (data && Array.isArray(data.txs)) {
+          // Blockchain.info format
+          rawTxs = data.txs.map((t) => ({
+            txid: t.hash,
+            status: { block_height: t.block_height || 0, block_time: t.time, confirmed: Boolean(t.block_height) },
+            vin: (t.inputs || []).map((i) => ({ prevout: { scriptpubkey_address: i.prev_out?.addr || 'Bitcoin Input' } })),
+            vout: (t.out || []).map((o) => ({ scriptpubkey_address: o.addr || 'Bitcoin Output', value: o.value || 0 })),
+          }));
+          successfulProvider = 'Blockchain.info API Provider';
           break;
         }
       }

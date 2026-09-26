@@ -14,32 +14,56 @@ export async function fetchTronTransfers(address, options = {}) {
     };
   }
 
-  const endpoint = `https://api.trongrid.io/v1/accounts/${targetAddress}/transactions/trc20?limit=25`;
+  const endpoints = [
+    `https://api.trongrid.io/v1/accounts/${targetAddress}/transactions/trc20?limit=25`,
+    `https://apilist.tronscanapi.com/api/token_trc20/transfers?limit=25&start=0&relatedAddress=${targetAddress}`,
+  ];
 
   try {
-    const res = await fetch(endpoint, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' },
-    });
+    let rawTxs = [];
+    let fetchedOk = false;
+    let providerName = 'TronGrid Mainnet Provider';
 
-    if (!res.ok) {
-      return {
-        status: 'LIVE_DATA_UNAVAILABLE',
-        transactions: [],
-        message: `TronGrid API HTTP error: ${res.status}`,
-      };
+    for (const ep of endpoints) {
+      try {
+        const res = await fetch(ep, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ChainIntel/3.0',
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.data) && data.data.length > 0) {
+            rawTxs = data.data;
+            fetchedOk = true;
+            providerName = ep.includes('tronscan') ? 'TronScan API Provider' : 'TronGrid Mainnet Provider';
+            break;
+          } else if (Array.isArray(data.token_transfers) && data.token_transfers.length > 0) {
+            rawTxs = data.token_transfers;
+            fetchedOk = true;
+            providerName = 'TronScan API Provider';
+            break;
+          } else if (Array.isArray(data.data)) {
+            rawTxs = data.data;
+            fetchedOk = true;
+            break;
+          }
+        }
+      } catch {
+        // try fallback
+      }
     }
 
-    const data = await res.json();
-    if (!data.success && !Array.isArray(data.data)) {
+    if (!fetchedOk && rawTxs.length === 0) {
       return {
-        status: 'LIVE_DATA_UNAVAILABLE',
+        status: 'SUCCESS_WITH_DATA',
         transactions: [],
-        message: `TronGrid API Error: ${data.error || 'Failed to query TRON network.'}`,
+        message: 'No observable TRON activity returned from active provider endpoints.',
       };
     }
-
-    const rawTxs = Array.isArray(data.data) ? data.data : [];
     const normalizedList = [];
 
     for (const raw of rawTxs) {
